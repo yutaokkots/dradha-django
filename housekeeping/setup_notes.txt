@@ -1,0 +1,137 @@
+Set up
+
+1) create virtual environment and create project
+ ** Project initialization
+    % django-admin startproject dradha
+ ** App initialization
+    % python3 manage.py startapp users
+    % python3 manage.py startapp personal
+ ** Virtual Environment initialization
+    % python3 -m venv .venv
+    % . .venv/bin/activate
+ ** App Dev mode
+    % python3 manage.py runserver
+ ** Save dependencies
+    % pip list   			#Check installed dependencies
+    % pip freeze > requirements.txt     #save package information
+    % pip install -r requirements.txt   #go through file to install packages
+ ** Dependencies
+    % pip install djangorestframework
+    % pip install pylint pylint-django
+    % pip install black
+    % black foldername/filename.py
+
+1a) Divide the app into multiple parts -> splitting by models
+
+    - Personal productivity 
+	- profile 
+        - social link
+    - Blog
+    - Bookmarks
+    - Projects
+    - Timer
+  
+
+
+mkdir api
+cd api
+mkdir models
+mkdir serializers
+mkdir tests
+mkdir views
+mkdir migrations
+mkdir permissions
+
+touch models/__init__.py
+touch serializers/__init__.py
+touch tests/__init__.py
+touch views/__init__.py
+touch permissions/__init__.py
+touch urls.py
+touch admin.py
+
+
+Other notes:
+
+2) initialize psql database using 'createdb' command
+    # create a new db
+    % createdb fourbeing
+
+    # create new app within project
+    % python3 manage.py startapp <fourbeing>
+
+    # migrate
+    % python3 manage.py migrate
+
+    # add new app, 'fourbeing' (or whatever app name) into settings.py -> 'INSTALLED_APPS'
+            INSTALLED_APPS = [
+                'fourbeing',
+                ... ]
+    # makemigration and migrate
+    % python3 manage.py makemigrations <app_name>
+    % python3 manage.py migrate <app_name>
+
+3) prepare api endpoint
+    # before working on api endpoint for app ('fourbeing'), set up URI endpoint
+    #   for the project. backend/backendserver/urls.py
+
+            from django.contrib import admin
+            from django.urls import path, include
+
+            urlpatterns = [
+                path('admin/', admin.site.urls),
+                path('', include('main_app.urls')),
+            ]
+    # define urls.py for app ('fourbeing')
+    #   backend/fourbeing/urls.py
+            urlpatterns = [
+                path('api/test/', views.test, name='test'),
+            ]
+    #   backend/fourbeing/views.py
+        def test(request):
+            pass
+
+Django REST framework
+4) prepare serializer, to invoke a serializer to convert db object to json when
+    the api endpoint is called
+    # 'rest-framework' needs to be installed in .venv, if not done already. (see above for command)
+    # add 'rest-framework' to settings.py, INSTALLED_APPS
+            INSTALLED_APPS = [
+                'rest_framework',
+                ... ]
+
+    #in fourbeing/serializers.py
+            from rest_framework import serializers
+
+    # if the rest-framework is in the .venv, the 'rest_framework' above may be squiggled.
+    # need to notify python of virtual environmant
+
+Django CORS-headers
+5) in order to specify the incoming HTTP request and allow the front-end app to access
+the uri endpoints of the front end, install Django Cors-headers
+https://pypi.org/project/django-cors-headers/
+https://github.com/adamchainz/django-cors-headers
+    # enter virtual environment
+    % . .venv/bin/activate
+
+    # install django-cors-headers
+    % pip install django-cors-headers
+
+    # save to requirements.txt
+    % pip freeze > requirements.txt
+
+    # update 'settings.py' file:
+    INSTALLED_APPS = [
+        'corsheaders',
+        . . . ]
+
+    MIDDLEWARE = [
+        "corsheaders.middleware.CorsMiddleware",
+        "django.middleware.common.CommonMiddleware",
+        . . . ]
+
+    CORS_ALLOWED_ORIGINS = [
+        'https://sub.example.com',
+        'http://localhost:5173',
+        'http://127.0.0.1:5173',
+    ]
