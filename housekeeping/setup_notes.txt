@@ -18,8 +18,9 @@ Set up
  ** Dependencies
     % pip install djangorestframework
     % pip install pylint pylint-django
+    to use: % pylint foldername/filename.py
     % pip install black
-    % black foldername/filename.py
+    to use: % black foldername/filename.py
 
 1a) Divide the app into multiple parts -> splitting by models
 
@@ -30,46 +31,36 @@ Set up
     - Bookmarks
     - Projects
     - Timer
-  
-
-
-mkdir api
-cd api
-mkdir models
-mkdir serializers
-mkdir tests
-mkdir views
-mkdir migrations
-mkdir permissions
-
-touch models/__init__.py
-touch serializers/__init__.py
-touch tests/__init__.py
-touch views/__init__.py
-touch permissions/__init__.py
-touch urls.py
-touch admin.py
 
 
 Other notes:
 
 2) initialize psql database using 'createdb' command
-    # create a new db
-    % createdb fourbeing
-
-    # create new app within project
-    % python3 manage.py startapp <fourbeing>
-
-    # migrate
+ ** Create a new postgresql database
+    % createdb users
+ ** create new app within project
+    % python3 manage.py startapp users
+ ** migrate
     % python3 manage.py migrate
 
-    # add new app, 'fourbeing' (or whatever app name) into settings.py -> 'INSTALLED_APPS'
+ ** add the new app, 'users' (or whatever app name), into settings.py -> 'INSTALLED_APPS'
+    open users/apps.py to view the class that is generated
             INSTALLED_APPS = [
-                'fourbeing',
-                ... ]
-    # makemigration and migrate
+                'users.apps.UsersConfig',
+                ...
+                ]
+ ** makemigration and migrate
     % python3 manage.py makemigrations <app_name>
     % python3 manage.py migrate <app_name>
+
+3) Create Superuser
+ ** Creating a superuser that can log in to the admin site
+    % python3 manage.py createsuperuser
+    >>> Username (leave blank to use 'name'):
+    >>> Email address:
+    >>> Password:
+    >>> Password (again):
+    >>> Superuser created successfully.
 
 3) prepare api endpoint
     # before working on api endpoint for app ('fourbeing'), set up URI endpoint
