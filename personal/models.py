@@ -1,6 +1,6 @@
 """A subpackage providing fields for the Bookmark model."""
 from django.db import models
-from django.contrib.auth.models import User
+from profile.models import User
 
 class Bookmark(models.Model):
     """Class representing a bookmark."""

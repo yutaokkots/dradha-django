@@ -1,7 +1,10 @@
 """A subpackage providing fields for the Profile model."""
 from django.db import models
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 
+class User(AbstractUser):
+    pass
 
 class Profile(models.Model):
     """Class representing a profile."""
