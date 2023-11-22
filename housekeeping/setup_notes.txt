@@ -62,6 +62,20 @@ Other notes:
     >>> Password (again):
     >>> Superuser created successfully.
 
+4) Tests
+
+
+self.assertEqual(a, b): Asserts that a and b are equal.
+self.assertTrue(x): Asserts that x is True.
+self.assertFalse(x): Asserts that x is False.
+self.assertIn(a, b): Asserts that a is in b.
+self.assertNotIn(a, b): Asserts that a is not in b.
+
+
+5) OAuth 2.0
+
+https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps
+
 3) prepare api endpoint
     # before working on api endpoint for app ('fourbeing'), set up URI endpoint
     #   for the project. backend/backendserver/urls.py
