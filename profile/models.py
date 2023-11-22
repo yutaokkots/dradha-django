@@ -5,8 +5,9 @@ from django.contrib.auth.models import User
 
 class Profile(models.Model):
     """Class representing a profile."""
+
     # Each user has a one-to-one relationship with a Django User model
-    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    userref = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     username = models.CharField(max_length=40)
     email = models.CharField(max_length=75, blank=True)
     location = models.CharField(max_length=75, blank=True)

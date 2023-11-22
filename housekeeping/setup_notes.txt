@@ -43,13 +43,13 @@ Other notes:
  ** migrate
     % python3 manage.py migrate
 
- ** add the new app, 'users' (or whatever app name), into settings.py -> 'INSTALLED_APPS'
-    open users/apps.py to view the class that is generated
+ ** add the new app, 'profile' (or whatever app name), into settings.py -> 'INSTALLED_APPS'
+    open profile/apps.py to view the class that is generated
             INSTALLED_APPS = [
-                'users.apps.UsersConfig',
+                'profile.apps.ProfileConfig',
                 ...
                 ]
- ** makemigration and migrate
+ ** makemigration and migrate for <app_name>
     % python3 manage.py makemigrations <app_name>
     % python3 manage.py migrate <app_name>
 
