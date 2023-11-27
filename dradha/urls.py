@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework.authtoken import views
 
+
 urlpatterns = [
     path('personal/', include('personal.urls')),
     path('admin/', admin.site.urls),
