@@ -18,9 +18,9 @@ Set up
  ** Dependencies
     % pip install djangorestframework
     % pip install pylint pylint-django
-    to use: % pylint foldername/filename.py
+    ## to use: % pylint foldername/filename.py
     % pip install black
-    to use: % black foldername/filename.py
+    ## to use: % black foldername/filename.py
 
 1a) Divide the app into multiple parts -> splitting by models
 
@@ -75,7 +75,7 @@ self.assertNotIn(a, b): Asserts that a is not in b.
 5) OAuth 2.0
  ** Install Django OAuth Toolkit: https://django-oauth-toolkit.readthedocs.io/en/latest/getting_started.html#what-we-will-build
     % pip install django-oauth-toolkit
-    
+
 https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps
 
 3) prepare api endpoint

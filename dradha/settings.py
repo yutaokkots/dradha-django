@@ -33,6 +33,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'personal.apps.PersonalConfig',
     'profile.apps.ProfileConfig',
+    'rest_framework',
     'oauth2_provider',
     'django.contrib.admin',
     'django.contrib.auth',
