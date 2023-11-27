@@ -33,6 +33,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'personal.apps.PersonalConfig',
     'profile.apps.ProfileConfig',
+    'useraccounts.apps.UseraccountsConfig',
     'rest_framework',
     'oauth2_provider',
     'django.contrib.admin',
@@ -127,7 +128,7 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-AUTH_USER_MODEL='profile.User'
+AUTH_USER_MODEL='useraccounts.User'
 
 # login 
 LOGIN_URL='/admin/login/'
