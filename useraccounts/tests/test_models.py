@@ -3,6 +3,7 @@ from django.test import TestCase
 from useraccounts.models import User
 from useraccounts.serializers import UserSerializer
 
+
 class TestUserModel(TestCase):
     """Class for testing the user model"""
 
@@ -11,7 +12,7 @@ class TestUserModel(TestCase):
         self.user_data = {
             "username": "testuser",
             "email": "testuser@example.com",
-            "password": "testpassword"
+            "password": "testpassword",
         }
         self.user = User.objects.create_user(**self.user_data)
 
@@ -31,15 +32,15 @@ class TestUserModel(TestCase):
         """Test the UserSerializer with valid data"""
         serializer = UserSerializer(instance=self.user)
         data = serializer.data
-        self.assertEqual(data['username'], "testuser")
-        self.assertEqual(data['email'], "testuser@example.com")
+        self.assertEqual(data["username"], "testuser")
+        self.assertEqual(data["email"], "testuser@example.com")
 
     def test_user_serializer_validation(self):
         """Test the UserSerializer with invalid data"""
         invalid_data = {"username": "inv", "email": "invalid_email"}
         serializer = UserSerializer(data=invalid_data)
         self.assertFalse(serializer.is_valid())
-        #how to write error assertion test cases?
+        # how to write error assertion test cases?
         with self.assertRaises(AssertionError):
             self.assertIn(invalid_data["username"], serializer.errors)
         with self.assertRaises(AssertionError):

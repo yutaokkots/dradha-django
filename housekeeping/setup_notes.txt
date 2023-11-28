@@ -63,13 +63,19 @@ Other notes:
     >>> Superuser created successfully.
 
 4) Tests
+    # import statement for Django's TestCase class (which is a subclass of unittest.TestCase)
+    from django.test import TestCase
 
-
-self.assertEqual(a, b): Asserts that a and b are equal.
-self.assertTrue(x): Asserts that x is True.
-self.assertFalse(x): Asserts that x is False.
-self.assertIn(a, b): Asserts that a is in b.
-self.assertNotIn(a, b): Asserts that a is not in b.
+    def setUp(self)     # a fixture tool that creates a db entry
+    def tearDown(self)  # a fixture tool that undoes setUp (no need to be explicitly called)
+    def setUpClass      # method from unittest.TestCase - automatically called after a test method is started
+    def tearDownClass   # method from unittest.TestCase - automatically called after a test method is completed
+    def setUpTestData   # 
+    self.assertEqual(a, b)      Asserts that a and b are equal.
+    self.assertTrue(x):         Asserts that x is True.
+    self.assertFalse(x)         Asserts that x is False.
+    self.assertIn(a, b)         Asserts that a is in b.
+    self.assertNotIn(a, b)      Asserts that a is not in b.
 
 
 5) OAuth 2.0

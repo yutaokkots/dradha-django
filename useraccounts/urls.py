@@ -4,6 +4,7 @@ from .views import RegisterUserAPIView, UserDetailAPI
 
 # 'api/auth/'
 urlpatterns = [
-    path("getuser/", UserDetailAPI.as_view(), name="userdetail"),
+    path("getuser/<int:user_id>/", UserDetailAPI.as_view(), name="getuser"),
+    path("userprofile/<int:user_id>/", UserDetailAPI.as_view(), name="userprofile"),
     path("createuser/", RegisterUserAPIView.as_view(), name="registeruser"),
 ]

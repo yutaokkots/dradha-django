@@ -3,6 +3,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authentication import TokenAuthentication
+from rest_framework.decorators import action
 from rest_framework import generics
 from .serializers import UserSerializer, CreateUserSerializer
 from .models import User
@@ -28,10 +29,17 @@ class UserDetailAPI(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [AllowAny]
 
-    def get(self, request, *args, **kwargs):
+    ##@action(methods=['get'], detail=False, url_path='getuser')
+    def get(self, request, user_id):
         """Method for getting user information. """
-
-        user = User.objects.get(id=request.user.id)
+        user = User.objects.get(id=user_id)
+        serializer = UserSerializer(user)
+        return Response(serializer.data)
+    
+    # draft
+    def getProfile(self, request, user_id):
+        """Method for getting user information. """
+        user = User.objects.get(id=user_id)
         serializer = UserSerializer(user)
         return Response(serializer.data)
 
