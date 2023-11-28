@@ -132,3 +132,10 @@ AUTH_USER_MODEL='useraccounts.User'
 
 # login 
 LOGIN_URL='/admin/login/'
+
+## django rest framework
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        'rest_framework_simplejwt.authentication.JWTAuthentication'
+    )
+}
