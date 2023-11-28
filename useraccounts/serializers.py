@@ -61,14 +61,12 @@ class CreateUserSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         """Validates the password """
-
         if attrs['password'] != attrs['password_confirm']:
             raise serializers.ValidationError('Passwords do not match.')
         return attrs
 
     def create(self, validated_data):
         """Creates a user instance """
-
         user = User.objects.create(
             username=validated_data['username'],
             email=validated_data['email'],
