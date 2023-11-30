@@ -1,8 +1,9 @@
 """Test module for 'useraccounts' models using Django REST framework"""
+import django
+django.setup()
 from django.test import TestCase
 from useraccounts.models import User
 from useraccounts.serializers import UserSerializer
-
 
 class TestUserModel(TestCase):
     """Class for testing the user model"""

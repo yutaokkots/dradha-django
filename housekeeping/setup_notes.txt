@@ -62,10 +62,28 @@ Other notes:
     >>> Password (again):
     >>> Superuser created successfully.
 
-4) Tests
+4) Set up .env and obfuscate Django-secret-key:
+    (.venv) % pip install django-environ 
+
+    settings.py
+        import os
+
+        #pip3 install django-environ
+        import environ
+
+        environ.Env()
+        environ.Env.read_env()
+        . . . 
+
+        SECRET_KEY = os.environ['SECRET_KEY']
+
+
+5) Tests
     # import statement for Django's TestCase class (which is a subclass of unittest.TestCase)
     from django.test import TestCase
 
+    % python3 manage.py test
+    
     def setUp(self)     # a fixture tool that creates a db entry
     def tearDown(self)  # a fixture tool that undoes setUp (no need to be explicitly called)
     def setUpClass      # method from unittest.TestCase - automatically called after a test method is started
