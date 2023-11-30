@@ -1,4 +1,5 @@
 """Module providing view classes for user-related requests/responses."""
+from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -44,9 +45,36 @@ class UserDetailAPI(APIView):
         return Response(serializer.data)
 
 # api/auth/createuser
-class RegisterUserAPIView(generics.CreateAPIView):
-    """Class for registering a new user."""
+class RegisterUserAPIView(APIView):
+    """Class for registering a new user.
+    
+    Attributes
+    ----------
+    permission_classes: 
+        Any user, regardless of authentication status, has permission to access the view.
+    serializer_class:
+        Use the CreateUserSerializer for serialization. 
+    """
 
     permission_classes = [AllowAny]
     serializer_class = CreateUserSerializer
 
+    def post(self, request, *args, **kwargs):
+        data = request.data
+        serializer = self.serializer_class(data=data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def perform_create(self, serializer):
+        serializer.save()
+
+    # def create(self, request, *args, **kwargs):
+
+    #     serializer = self.get_serializer(data=request.data)
+    #     serializer.is_valid(raise_exception=True)
+    #     self.perform_create(serializer)
+
+    #     headers = self.get_success_headers(serializer.data)
+
+    #     return Response(serializer.data, status=status.HTTP_201_CREATED)

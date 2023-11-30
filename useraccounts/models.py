@@ -21,10 +21,10 @@ class User(AbstractUser):
         max_length=40, 
         unique=True,
         validators=[MinLengthValidator(4)])
-    email = models.CharField(
+    email = models.EmailField(
         max_length=75, 
         blank=False, 
-        validators=[EmailValidator, ])
+        validators=[EmailValidator])
 
     def __str__(self):
         """Returns a string representation of the user's username"""

@@ -1,0 +1,28 @@
+useraccounts 
+- views (test_views.py)
+    - Routes
+        - getuser (GET)
+            
+        - userprofile (GET)
+        - createuser (POST)
+            - test user creation 
+- models (test_models.py)
+    - models
+        - User
+            - fields
+                - username
+                - email
+            - tests
+                - test for valid (success) User creation 
+                    - OK-> test user is saved to db 
+                    - OK-> test saved user matches initial creation
+                - test for invalid (failure) User creation (invalid username, invalid email)
+                - test for no user (failure) information
+                - test user serializer
+                    - OK-> test assertion that serialized data and original are equal
+                    - OK-> test invalid username and email
+                
+
+
+
+

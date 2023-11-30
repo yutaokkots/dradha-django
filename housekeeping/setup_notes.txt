@@ -82,8 +82,11 @@ Other notes:
     # import statement for Django's TestCase class (which is a subclass of unittest.TestCase)
     from django.test import TestCase
 
+    # run all tests
     % python3 manage.py test
-    
+    # single test
+    % python3 manage.py test useraccounts.tests.test_views 
+
     def setUp(self)     # a fixture tool that creates a db entry
     def tearDown(self)  # a fixture tool that undoes setUp (no need to be explicitly called)
     def setUpClass      # method from unittest.TestCase - automatically called after a test method is started

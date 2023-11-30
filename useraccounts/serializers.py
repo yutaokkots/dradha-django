@@ -1,6 +1,7 @@
 """Serializer classes for the User model."""
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
+from django.core.validators import EmailValidator, MinLengthValidator, MaxLengthValidator
 from django.contrib.auth.password_validation import validate_password
 from .models import User
 
@@ -21,12 +22,17 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'username', 'email']
 
-class CreateUserSerializer(serializers.ModelSerializer):
+class CreateUserSerializer(serializers.Serializer):
     """Serializer Class for creating a User instance"""
+
+    username = serializers.CharField(
+
+        validators=[MinLengthValidator(4), MaxLengthValidator(40)]
+    )
 
     email = serializers.EmailField(
         required=True,
-        validators=[UniqueValidator(queryset=User.objects.all)]
+        validators=[EmailValidator, MaxLengthValidator(75)]
     )
     password = serializers.CharField(
         write_only=True,
@@ -70,7 +76,8 @@ class CreateUserSerializer(serializers.ModelSerializer):
         user = User.objects.create(
             username=validated_data['username'],
             email=validated_data['email'],
+            password=validated_data['password'],
         )
-        user.set_password(validated_data['password'])
-        user.save()
+        # user.set_password(validated_data['password'])
+        # user.save()
         return user
