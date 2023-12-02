@@ -45,6 +45,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'personal.apps.PersonalConfig',
     'profile.apps.ProfileConfig',
+    'oauth.apps.OauthConfig',
     'useraccounts.apps.UseraccountsConfig',
     'rest_framework',
     'oauth2_provider',

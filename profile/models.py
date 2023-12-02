@@ -11,6 +11,7 @@ class Profile(models.Model):
     userref = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     location = models.CharField(max_length=75, blank=True)
     bio = models.CharField(max_length=200, blank=True)
+    theme = models.CharField(max_length=10, blank=True)
     # workexp = models.CharField(max_length=200, blank=True)
     # sociallinks = models.CharField(max_length=200, blank=True)
 

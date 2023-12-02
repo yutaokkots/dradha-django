@@ -78,3 +78,7 @@ class RegisterUserAPIView(APIView):
     #     headers = self.get_success_headers(serializer.data)
 
     #     return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+# api/auth/oauthlogin
+class OAuthView():
+    pass

@@ -13,4 +13,5 @@ urlpatterns = [
     path("userprofile/<int:user_id>/", UserDetailAPI.as_view(), name="userprofile"),
     path("createuser/", RegisterUserAPIView.as_view(), name="registeruser"),
     path("login/", RegisterUserAPIView.as_view(), name="login"),
+    path("oauthlogin/", RegisterUserAPIView.as_view(), name="oauthlogin")
 ]

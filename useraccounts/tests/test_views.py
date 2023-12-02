@@ -16,7 +16,7 @@ class UserAPITest(APITestCase):
     """
 
     def setUp(self):
-        """Set up the test method for createing a user"""
+        """Set up the test method for creating a user"""
         self.user_data = {
             "username": "testuser",
             "email": "testuser@example.com",
@@ -87,6 +87,7 @@ class UserAPITest(APITestCase):
         saved_user = User.objects.get(username="testuser")
         self.assertEqual(saved_user.username, "testuser")
         self.assertEqual(saved_user.email, "testuser@example.com")
+
 
 
     # def test_user_login(self):
