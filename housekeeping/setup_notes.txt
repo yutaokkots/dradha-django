@@ -98,7 +98,6 @@ Other notes:
     self.assertIn(a, b)         Asserts that a is in b.
     self.assertNotIn(a, b)      Asserts that a is not in b.
 
-
 6) OAuth 2.0
  ** Install Django OAuth Toolkit: https://django-oauth-toolkit.readthedocs.io/en/latest/getting_started.html#what-we-will-build
     % pip install django-oauth-toolkit
