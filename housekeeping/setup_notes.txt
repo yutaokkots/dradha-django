@@ -99,11 +99,24 @@ Other notes:
     self.assertNotIn(a, b)      Asserts that a is not in b.
 
 
-5) OAuth 2.0
+6) OAuth 2.0
  ** Install Django OAuth Toolkit: https://django-oauth-toolkit.readthedocs.io/en/latest/getting_started.html#what-we-will-build
     % pip install django-oauth-toolkit
 
 https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps
+
+7) Caches
+    In this app, a cache db was created to temporarily save the state information for OAuth authorization. 
+ ** In settings.py, insert the following:
+        CACHES = {
+            "default": {
+                "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+                "LOCATION": "oauthstatecache",
+            }
+        }
+ ** And running:
+    % python3 manage.py createcachetable
+    This command will create a cache table that is the same name as the "LOCATION" field above. 
 
 3) prepare api endpoint
     # before working on api endpoint for app ('fourbeing'), set up URI endpoint
