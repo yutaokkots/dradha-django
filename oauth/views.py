@@ -2,12 +2,15 @@ from django.shortcuts import render
 from rest_framework import status, request
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.request import Request
-from django.http import HttpRequest
+from django.shortcuts import redirect
 import requests
 import logging
 import os
 import urllib.parse
+import random
+import string
+import json
+from datetime import datetime
 
 # test that I receive something at the callback route
 # code
@@ -15,12 +18,40 @@ import urllib.parse
 
 GITHUB_URL = 'https://github.com/login/oauth/access_token' # os.environ['SECRET_GITHUB_TOKEN_URL'] #
 
+
+class GithubStateGenerator(APIView):
+    def get(self, request, *args, **kwargs):
+        try:
+            length = 20
+            rand_state = self.state_generator(length)
+            ts = self.timestamp()
+            response = {
+                "state":rand_state,
+                "timestamp":ts,
+            }
+            print(response)
+            return Response(data=response, status=status.HTTP_201_CREATED)
+        except ValueError as value_error:
+            error_message = f"ValueError: {value_error}"
+            return Response(data={"error": error_message}, status=status.HTTP_400_BAD_REQUEST)
+
+    def state_generator(self, length:int) -> str:
+        code = [random.choice(string.ascii_letters + string.digits) for _ in range(length)]
+        return "".join(code)
+    
+    def timestamp(self):
+        return json.dumps(datetime.now().isoformat())
+
+
 class GithubOauthAPI(APIView):
-    """ Class for the callback route once submits login information 
+    """ Class for the callback route once user submits login information 
     for Github OAuth2 authenticaion. 
     """
     
-    
+    def get(self, request, *args, **kwargs):
+        print(request.query_params)
+        return redirect('http://localhost:3000')
+
     def post(self, request, *args, **kwargs):
         try:
             self.code = request.data["code"]
