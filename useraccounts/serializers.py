@@ -44,6 +44,9 @@ class CreateUserSerializer(serializers.Serializer):
         required=False,
         style={"input_type": "password"}
     )
+    oauth_login = serializers.BooleanField(
+        required=True
+    )
 
     class Meta:
         """ Meta options for the UserSerializer.
@@ -69,7 +72,7 @@ class CreateUserSerializer(serializers.Serializer):
         if (attrs['password'] and 
             attrs['password_confirm'] and 
             attrs['password'] != attrs['password_confirm']):
-    
+
             raise serializers.ValidationError('Passwords do not match.')
         return attrs
 

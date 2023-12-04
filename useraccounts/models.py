@@ -29,8 +29,11 @@ class User(AbstractUser):
     avatar_url = models.URLField(
         max_length=300,
         default="http://www.dradha.co/profile-images/avatar_osteospermum.jpg")
-    oauth_login = models.BooleanField(
-        default=False)
+    oauth_login = models.CharField(
+        default="False",
+        max_length=20
+        )
+
 
     def __str__(self):
         """Returns a string representation of the user's username"""

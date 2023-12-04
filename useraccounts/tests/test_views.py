@@ -21,7 +21,8 @@ class UserAPITest(APITestCase):
             "username": "testuser",
             "email": "testuser@example.com",
             "password": "testpassword",
-            "password_confirm": "testpassword"
+            "password_confirm": "testpassword",
+            "oauth_login": "False"
         }
         self.user_data_missing_password = {
             "username": "testuser",
