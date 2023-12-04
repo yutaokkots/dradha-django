@@ -25,6 +25,11 @@ class User(AbstractUser):
         max_length=75, 
         blank=False, 
         validators=[EmailValidator])
+    avatar_url = models.URLField(
+        max_length=300,
+        default="http://www.dradha.co/profile-images/avatar_osteospermum.jpg"
+    )
+
 
     def __str__(self):
         """Returns a string representation of the user's username"""

@@ -1,0 +1,110 @@
+Acronyms:
+DRF - Django rest framework
+
+################################
+###### Views
+#########
+
+from rest_framework.views import APIView
+    Use case: Use DRF's APIView class to define HTTP methods (GET, POST, PUT, DELETE, etc.) for an API endpoint. 
+            APIView extends Django's 'View' class. 
+    Example:
+        class UserAPI(APIView):
+            """ class description here """
+
+from django.urls import reverse
+    Use case: include the url (str), but using the name of the view to get the url. 
+    Example: in urls.py, path("callback/state/", GithubStateGenerator.as_view(http_method_names=['get']), name="stategenerator"),
+            use reverse(stategenerator) to convert to the full url path, "oauth/callback/state/"
+
+    reverse(viewname, urlconf=None, args=None, kwargs=None, current_app=None)
+
+
+from django.shortcuts import redirect
+    Use case: provide a redirect 'url'. The origin class is 'class HttpResponseRedirect' 
+            which is a subclass of 'HttpResponse'  from django.http.
+    Example: at the end of a class-based or function-based view, cause a redirect:
+            return redirect("http://google.com")
+
+    redirect(to, *args, permanent=False, **kwargs)¶
+
+
+from django.http import HttpResponse
+from django.http import HttpResponseServerError
+    Use case: HttpResponse, as name implies, helps to create an HTTP response after a server's URI is triggered.
+            HttpResponse objects have to be created/customized, while HttpRequest object is created automatically by Django.
+
+from rest_framework.response import Response
+    Use case: Response is a class in DRF is a subclass of Django's 'SimpleTemplateResponse' class, and helps to 
+
+from rest_framework import status
+
+################################
+###### Serializers
+#########
+
+Serializers in DRF translates complex data types into native data types. 
+serializers are often used with Django models:
+    API responses:
+                                    serializer
+        Django models or querysets  ----------->  Python data types that can be converted to JSON.
+    Saving to database:
+                                    deserializer
+        database, Django models     ----------->    JSON is validated by serializer
+
+from rest_framework import serializers
+    Use case: Imports the serializers module. 
+
+    serializers has field-level validation methods. Examples:
+        serializers.CharField()
+        serializers.DateTimeField()
+        serializers.IntegerField()
+        serializers.EmailField()
+        serializers.ValidationError()
+
+serializers.Serializer
+    Use case: Define how data should be serialized or deserialized. 
+    
+    serializer.Serializer methods:
+        .create()
+        .update()
+        .is_valid()
+        .save()
+
+        Serialization (calling from db):
+            . . . example 1 . . .
+            from rest_framework.renderers import JSONRenderer
+
+            serializer = CommentSerializer(comment)
+            serializer.data
+            json = JSONRenderer().render(serializer.data)
+            . . . 
+            . . . example 2 . . .
+            comment = get_object_or_404(CommentModel, pk=comment_id)
+            serializer = CommentSerializer(instance=comment)
+            . . .
+        Deserialization (saving to db):
+            . . . 
+            serializer = ProfileSerializer(data=data_from_client)   # instantiate with data
+            if serializer.is_valid():                               # validate the instantiated data
+                instance = serializer.save()                        # save into database
+            . . . 
+
+serializers.ModelSerializer
+    Use case: Subclass of serializers.Serializer used for converting model instances to JSON or back to the db
+    Example: 
+        class UserSerializer(serializers.ModelSerializer):
+            class Meta:
+                model = User
+                fields = ["username", "email"]
+
+################################
+###### Testing
+#########
+
+from django.test import TestCase
+
+from rest_framework.test import APIClient
+
+
+

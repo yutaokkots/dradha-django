@@ -8,10 +8,14 @@ class Profile(models.Model):
     """Class representing a profile."""
 
     # Each user has a one-to-one relationship with a Django User model
-    userref = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     location = models.CharField(max_length=75, blank=True)
     bio = models.CharField(max_length=200, blank=True)
+    company = models.CharField(max_length=100, blank=True)
     theme = models.CharField(max_length=10, blank=True)
+    github_url = models.URLField(max_length=140, blank=True)
+    website = models.URLField(max_length=200, blank=True)
+    twitter_username = models.CharField(max_length=15, blank=True)
     # workexp = models.CharField(max_length=200, blank=True)
     # sociallinks = models.CharField(max_length=200, blank=True)
 
