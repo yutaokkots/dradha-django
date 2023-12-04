@@ -137,25 +137,40 @@ class GithubOauthAPI(APIView):
             return response.json()
         except requests.RequestException as e:
             logging.error(f"Error accessing token: {e}")
-            return None
+            return HttpResponseServerError
+
+    def parse_for_user_model(self, user_data):
+        username = user_data["username"]
+        avatar_url = user_data["avatar_url"]
+        email = user_data["email"]
+        oauth_login = True
+        return {
+            "username" : username, 
+            "avatar_url" : avatar_url, 
+            "email" : email, 
+            "oauth_login" : oauth_login
+        }
+
+    def parse_for_profile_model(self, user_data):
+        bio = user_data["bio"]
+        company = user_data["company"]
+        github_url = user_data["github_url"]
+        website = user_data["website"]
+        location = user_data["location"]
+        twitter_username = user_data["twitter_username"]
+
+        return { "bio": bio,
+            "company": company,
+            "github_url": github_url,
+            "website": website,
+            "location": location,
+            "twitter_username": twitter_username
+        }
 
     def serialize_github_user(self, user):
-        user_data = {
-
-        }
-        # User
-        # “name” <- name * Create a new function to parse Github user to User's name
-        # X “username”: <- login
-        # X “avatar_url”: <- avatar_url     NEW 
-        # X “email” <- email
-
-        # Profile
-        # X "bio" <- bio              
-        # X “company” <- company            NEW
-        # X “github_url”: <- html_url       NEW
-        # X “website” <- blog               NEW
-        # X “location” <-  location
-        # “twitter_username” <- twitter_username
+        user_model_info = self.parse_for_user_model(user)
+        # profile_model_info = self.parse_for_profile_model(user)
+        # serializer = UserSerializer(data=user_model_info)
 
 
         # UserSerializer()

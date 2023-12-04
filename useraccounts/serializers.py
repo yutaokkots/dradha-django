@@ -26,7 +26,6 @@ class CreateUserSerializer(serializers.Serializer):
     """Serializer Class for creating a User instance"""
 
     username = serializers.CharField(
-
         validators=[MinLengthValidator(4), MaxLengthValidator(40)]
     )
 
@@ -36,13 +35,13 @@ class CreateUserSerializer(serializers.Serializer):
     )
     password = serializers.CharField(
         write_only=True,
-        required=True,
+        required=False,
         validators=[validate_password],
         style={"input_type": "password"}
     )
     password_confirm = serializers.CharField(
         write_only=True,
-        required=True,
+        required=False,
         style={"input_type": "password"}
     )
 
@@ -67,7 +66,10 @@ class CreateUserSerializer(serializers.Serializer):
 
     def validate(self, attrs):
         """Validates the password """
-        if attrs['password'] != attrs['password_confirm']:
+        if (attrs['password'] and 
+            attrs['password_confirm'] and 
+            attrs['password'] != attrs['password_confirm']):
+    
             raise serializers.ValidationError('Passwords do not match.')
         return attrs
 
@@ -80,4 +82,5 @@ class CreateUserSerializer(serializers.Serializer):
         )
         # user.set_password(validated_data['password'])
         # user.save()
+        ## Additionally create a profile instance.
         return user
