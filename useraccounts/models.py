@@ -19,24 +19,29 @@ class User(AbstractUser):
     """
     
     username = models.CharField(
-        max_length=40, 
+        max_length=30, 
         unique=True,
         validators=[MinLengthValidator(4)])
     email = models.EmailField(
         max_length=75, 
         blank=False, 
         validators=[EmailValidator])
-    avatar_url = models.URLField(
-        max_length=300,
-        default="http://www.dradha.co/profile-images/avatar_osteospermum.jpg")
     oauth_login = models.CharField(
         default="False",
-        max_length=20
-        )
-
+        max_length=20)
+    avatar_url = models.URLField(
+        max_length=300,
+        blank=True,
+        default="http://www.dradha.co/profile-images/avatar_osteospermum.jpg")
 
     def __str__(self):
         """Returns a string representation of the user's username"""
         return str(self.username)
 
+    # def create_user(cls, username, email, password, **kwargs):
+    #     user = super().create_user(username, email, password)
+    #     for field, value in kwargs.items():
+    #         setattr(user, field, value)
+    #     user.save()
+    #     return user
     

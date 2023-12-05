@@ -1,11 +1,12 @@
 """Module providing view classes for user-related requests/responses."""
-from rest_framework import status
+from rest_framework import status, serializers
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import action
 from rest_framework import generics
+from django.db import IntegrityError
 from .serializers import UserSerializer, CreateUserSerializer
 from .models import User
 
@@ -57,17 +58,25 @@ class RegisterUserAPIView(APIView):
     """
 
     permission_classes = [AllowAny]
-    serializer_class = CreateUserSerializer
-
+    
     def post(self, request, *args, **kwargs):
-        data = request.data
-        serializer = self.serializer_class(data=data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-    def perform_create(self, serializer):
-        serializer.save()
+        try:
+            data = request.data
+            serializer = CreateUserSerializer(data=data)
+            serializer.is_valid(raise_exception=True)
+            if serializer.is_valid():
+                userdata = serializer.create(serializer.validated_data)
+                deserializer = UserSerializer(userdata)
+            return Response(deserializer.data, status=status.HTTP_201_CREATED)
+        except IntegrityError as e:
+            return Response({"error": f"Database error: {str(e)}"}, status=status.HTTP_409_CONFLICT)
+        except serializers.ValidationError as e:
+            return Response({"error": e.detail}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception:
+            return Response({"error": "An unexpected error occurred"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    # def perform_create(self, serializer):
+    #     serializer.save()
 
     # def create(self, request, *args, **kwargs):
 
