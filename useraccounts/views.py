@@ -65,14 +65,15 @@ class RegisterUserAPIView(APIView):
             serializer = CreateUserSerializer(data=data)
             serializer.is_valid(raise_exception=True)
             if serializer.is_valid():
-                userdata = serializer.create(serializer.validated_data)
-                deserializer = UserSerializer(userdata)
-            return Response(deserializer.data, status=status.HTTP_201_CREATED)
-        except IntegrityError as e:
-            return Response({"error": f"Database error: {str(e)}"}, status=status.HTTP_409_CONFLICT)
+                try:
+                    userdata = serializer.create(serializer.validated_data)
+                    deserializer = UserSerializer(userdata)
+                    return Response(deserializer.data, status=status.HTTP_201_CREATED)
+                except IntegrityError as e:
+                    return Response({"error": f"Database error: {str(e)}"}, status=status.HTTP_409_CONFLICT)
         except serializers.ValidationError as e:
             return Response({"error": e.detail}, status=status.HTTP_400_BAD_REQUEST)
-        except Exception:
+        except Exception as e:
             return Response({"error": "An unexpected error occurred"}, status=status.HTTP_400_BAD_REQUEST)
     
     # def perform_create(self, serializer):

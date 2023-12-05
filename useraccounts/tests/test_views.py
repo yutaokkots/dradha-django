@@ -9,56 +9,56 @@ VALID_USER = {
             "email": "testuser@mail.com",
             "password": "testpassword",
             "password_confirm": "testpassword",
-            "oauth_login": "False"
+            "oauth_login": "None"
         }
 MISSING_PASSWORD = {
             "username": "testuser",
             "email": "testuser@example.com",
             "password": "testpassword",
             "password_confirm": "",
-            "oauth_login": "False"
+            "oauth_login": "None"
         }
 INVALID_PASSWORD = {
             "username": "testuser",
             "email": "testuser@example.com",
             "password": "testpassword",
             "password_confirm": "testpassworssd",
-            "oauth_login": "False"
+            "oauth_login": "None"
         }
 INVALID_EMAIL = {
             "username": "testuser",
             "email": "testuser@",
             "password": "testpassword",
             "password_confirm": "testpassword",
-            "oauth_login": "False"
+            "oauth_login": "None"
         }
 INVALID_USERNAME_SHORT = {
             "username": "tes",
             "email": "testuser@example.com",
             "password": "testpassword",
             "password_confirm": "testpassword",
-            "oauth_login": "False"
+            "oauth_login": "None"
         }
 INVALID_USERNAME_LONG = {
             "username": "testtesttesttesttesttestusernametoolong",
             "email": "testuser@example.com",
             "password": "testpassword",
             "password_confirm": "testpassword",
-            "oauth_login": "False"
+            "oauth_login": "None"
         }
-INVALID_AUTHENTICATION = {
+NO_PASSWORD = {
             "username": "testuser",
             "email": "testuser@example.com",
             "password": "",
             "password_confirm": "",
-            "oauth_login": "False",  
+            "oauth_login": "None",  
         }
 VALID_OAUTH_USER = {
             "username": "oauthtestuser",
-            "email": "testuser@example.com",
+            "email": "testuseroauth@example.com",
             "password": "",
             "password_confirm": "",
-            "oauth_login": "skej932kfnma58shdkelanc2kdp",
+            "oauth_login": "skej932kfnma58shdkel",
             "avatar_url":"www.dradha.co/sourceimg.png"
         }
 VALID_OAUTH_USER_2 = {
@@ -66,8 +66,15 @@ VALID_OAUTH_USER_2 = {
             "email": "testuser2@example.com",
             "password": "",
             "password_confirm": "",
-            "oauth_login": "skej932kfnma58shdkelanc2kdp",
+            "oauth_login": "skej932kfnma58shdkel",
             "avatar_url":"www.dradha.co/newimage.png"
+        }
+INVALID_OAUTH_USER = {
+            "username": "fakeoauthuser",
+            "email": "fakeuser@example.com",
+            "password": "",
+            "password_confirm": "",
+            "oauth_login": "nma58sskej932kf",  
         }
 
 class UserAPITest(APITestCase):
@@ -76,8 +83,26 @@ class UserAPITest(APITestCase):
     Methods
     -------
     setup()
-        Creates a user for testing.
-    test_user_get_api()
+        Creates two users (a regular user and an oauth user) for initial testing setup.
+    test_create_user_profile()
+        Creates another valid user profile.
+    test_create_missing_password()  
+        (Failure) Attempts to create a profile with a missing password. 
+    test_create_invalid_password()
+        (Failure) Attempts to create a profile with non-matching passwords. 
+    test_create_invalid_email()
+        (Failure) Attempts to create a profile with an invalid email. 
+    test_create_invalid_username()
+        (Failure) Attempts to create a profile with a short or long username. 
+    test_create_duplicate_user()
+        (Failure) Attempts to create duplicate(regular and oauth) users. 
+    test_create_no_passwords
+        (Failure) Attempts to create a user with no passwords. 
+    test_retrieve_users_from_db()
+        Retrieves both users from setup(). 
+    test_invalid_oauth_user()
+        (Failure) Attempts to create an oauth user with incorrect permissions. 
+
 
     """
 
@@ -89,10 +114,11 @@ class UserAPITest(APITestCase):
         self.user_data_invalid_email = INVALID_EMAIL
         self.user_data_invalid_username_short = INVALID_USERNAME_SHORT
         self.user_data_invalid_username_long = INVALID_USERNAME_LONG
-        self.user_data_invalid_authentication = INVALID_AUTHENTICATION
+        self.user_data_no_password = NO_PASSWORD
         self.user_data_valid_oauth_user = VALID_OAUTH_USER
         self.user_data_valid_oauth_user_2 = VALID_OAUTH_USER_2
-        
+        self.user_data_invalid_oauth_user = INVALID_OAUTH_USER 
+
         response = self.client.post(reverse("registeruser"), self.user_data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertNotEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -112,7 +138,7 @@ class UserAPITest(APITestCase):
             "email": "test@email.net",
             "password": "testpassword1",
             "password_confirm": "testpassword1",
-            "oauth_login": "False"
+            "oauth_login": "None"
         })
         self.assertEqual(response.data["username"], "testabcdeuser")
         self.assertEqual(response.data["email"], "test@email.net")
@@ -120,64 +146,94 @@ class UserAPITest(APITestCase):
         self.assertNotIn("password", response.data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertNotEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        all_users = User.objects.all()
+        self.assertEqual(all_users.count(), 3)
+        self.assertNotEqual(all_users.count(), 2)
 
     def test_create_missing_password(self): 
         """Tests the failure of creating a user due to missing the password_confirm field."""
         response = self.client.post(reverse("registeruser"), self.user_data_missing_password)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertNotEqual(response.status_code, status.HTTP_201_CREATED)
+        all_users = User.objects.all()
+        self.assertEqual(all_users.count(), 2)
+        self.assertNotEqual(all_users.count(), 3)
 
     def test_create_invalid_password(self):
         """Tests the failure of creating a user due to non-matching passwords."""
         response = self.client.post(reverse("registeruser"), self.user_data_invalid_password)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertNotEqual(response.status_code, status.HTTP_201_CREATED)
+        all_users = User.objects.all()
+        self.assertEqual(all_users.count(), 2)
+        self.assertNotEqual(all_users.count(), 3)
 
     def test_create_invalid_email(self):
         """Tests the failure of creating a user due to an invalid email address."""
         response = self.client.post(reverse("registeruser"), self.user_data_invalid_email)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertNotEqual(response.status_code, status.HTTP_201_CREATED)
+        all_users = User.objects.all()
+        self.assertEqual(all_users.count(), 2)
+        self.assertNotEqual(all_users.count(), 3)
 
     def test_create_invalid_username(self):
         """Tests the failure of creating a user due to an invalid username."""
-        response = self.client.post(reverse("registeruser"), self.user_data_invalid_username_short)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertNotEqual(response.status_code, status.HTTP_201_CREATED)
-        response = self.client.post(reverse("registeruser"), self.user_data_invalid_username_long)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertNotEqual(response.status_code, status.HTTP_201_CREATED)
-
-    def test_retrieve_user_from_db(self):
-        """Tests the retrieval of the first user from the database."""
-        saved_user = User.objects.get(username="testuserA")
-        self.assertEqual(saved_user.username, "testuserA")
-        self.assertEqual(saved_user.email, "testuser@mail.com")
+        response_1 = self.client.post(reverse("registeruser"), self.user_data_invalid_username_short)
+        self.assertEqual(response_1.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertNotEqual(response_1.status_code, status.HTTP_201_CREATED)
+        response_2 = self.client.post(reverse("registeruser"), self.user_data_invalid_username_long)
+        self.assertEqual(response_2.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertNotEqual(response_2.status_code, status.HTTP_201_CREATED)
+        all_users = User.objects.all()
+        self.assertEqual(all_users.count(), 2)
+        self.assertNotEqual(all_users.count(), 4)
 
     def test_create_duplicate_user(self):
-        """Tests the creation of a duplicate user in db"""
-        response = self.client.post(reverse("registeruser"), self.user_data)
-        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
-        self.assertNotEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertNotEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        """Tests the creation of duplicate users in db"""
+        response_1 = self.client.post(reverse("registeruser"), self.user_data)
+        self.assertEqual(response_1.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertNotEqual(response_1.status_code, status.HTTP_201_CREATED)
+        response_2 = self.client.post(reverse("registeruser"), self.user_data_valid_oauth_user)
+        self.assertNotEqual(response_2.status_code, status.HTTP_201_CREATED)
+        all_users = User.objects.all()
+        self.assertEqual(all_users.count(), 2)
+        self.assertNotEqual(all_users.count(), 4)
 
-    def test_create_invalid_oauth_user(self):
+    def test_create_no_passwords(self):
         """Tests the invalid creation of an invalid oauth user"""
-        response = self.client.post(reverse("registeruser"), self.user_data_invalid_authentication)
+        response = self.client.post(reverse("registeruser"), self.user_data_no_password)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertNotEqual(response.status_code, status.HTTP_201_CREATED)
-    
+        all_users = User.objects.all()
+        self.assertEqual(all_users.count(), 2)
+        self.assertNotEqual(all_users.count(), 3)
+
     def test_create_oauth_user(self):
         """Tests the creation of a valid oauth user"""
         response = self.client.post(reverse("registeruser"), self.user_data_valid_oauth_user_2)
         self.assertEqual(response.data["avatar_url"], "www.dradha.co/newimage.png")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertNotEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        all_users = User.objects.all()
+        self.assertEqual(all_users.count(), 3)
+        self.assertNotEqual(all_users.count(), 2)
 
-    def test_create_duplicate_oauth_user(self):
-        """Tests the creation of a duplicate user in db"""
-        response = self.client.post(reverse("registeruser"), self.user_data_valid_oauth_user)
-        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+    def test_retrieve_users_from_db(self):
+        """Tests the retrieval of the first and second users from the database."""
+        saved_user_1 = User.objects.get(username="testuserA")
+        self.assertEqual(saved_user_1.username, "testuserA")
+        self.assertEqual(saved_user_1.email, "testuser@mail.com")
+        saved_user_2 = User.objects.get(username="oauthtestuser")
+        self.assertEqual(saved_user_2.username, "oauthtestuser")
+        self.assertEqual(saved_user_2.email, "testuseroauth@example.com")
+        self.assertEqual(saved_user_2.avatar_url, "www.dradha.co/sourceimg.png")
+
+    def test_invalid_oauth_user(self):
+        """Tests an oauth user that does not have the right permissions."""
+        response = self.client.post(reverse("registeruser"), self.user_data_invalid_oauth_user)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertNotEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertNotEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
+        all_users = User.objects.all()
+        self.assertEqual(all_users.count(), 2)
+        self.assertNotEqual(all_users.count(), 3)

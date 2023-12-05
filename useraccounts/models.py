@@ -27,9 +27,9 @@ class User(AbstractUser):
         blank=False, 
         validators=[EmailValidator])
     oauth_login = models.CharField(
-        default="False",
+        default="None",
         max_length=20)
-    avatar_url = models.URLField(
+    avatar_url = models.CharField(
         max_length=300,
         blank=True,
         default="http://www.dradha.co/profile-images/avatar_osteospermum.jpg")
