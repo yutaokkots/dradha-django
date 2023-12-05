@@ -8,7 +8,8 @@ class Profile(models.Model):
     """Class representing a profile."""
 
     # Each user has a one-to-one relationship with a Django User model
-    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    # User, related_name='profile',
+    user = models.OneToOneField(User, related_name="profile", on_delete=models.CASCADE, primary_key=True)
     location = models.CharField(max_length=75, blank=True)
     bio = models.CharField(max_length=200, blank=True)
     company = models.CharField(max_length=100, blank=True)
@@ -20,4 +21,4 @@ class Profile(models.Model):
     # sociallinks = models.CharField(max_length=200, blank=True)
 
     def __str__(self):
-        return str(self.username)
+        return str(self.user)

@@ -2,6 +2,7 @@
 from rest_framework import status
 from rest_framework.test import APITestCase
 from useraccounts.models import User
+from profile.models import Profile
 from django.urls import reverse
 
 VALID_USER = {
@@ -102,8 +103,6 @@ class UserAPITest(APITestCase):
         Retrieves both users from setup(). 
     test_invalid_oauth_user()
         (Failure) Attempts to create an oauth user with incorrect permissions. 
-
-
     """
 
     def setUp(self):
@@ -140,24 +139,31 @@ class UserAPITest(APITestCase):
             "password_confirm": "testpassword1",
             "oauth_login": "None"
         })
-        self.assertEqual(response.data["username"], "testabcdeuser")
-        self.assertEqual(response.data["email"], "test@email.net")
-        self.assertEqual(response.data["avatar_url"], "http://www.dradha.co/profile-images/avatar_osteospermum.jpg")
-        self.assertNotIn("password", response.data)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertNotEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        all_users = User.objects.all()
-        self.assertEqual(all_users.count(), 3)
-        self.assertNotEqual(all_users.count(), 2)
+        with self.subTest("Create a new valid user"):
+            self.assertEqual(response.data["username"], "testabcdeuser")
+            self.assertEqual(response.data["email"], "test@email.net")
+            self.assertEqual(response.data["avatar_url"], "http://www.dradha.co/profile-images/avatar_osteospermum.jpg")
+            self.assertNotIn("password", response.data)
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+            self.assertNotEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        with self.subTest("User count has increased to 3 and no longer 2."):
+            all_users = User.objects.all()
+            self.assertEqual(all_users.count(), 3)
+            self.assertNotEqual(all_users.count(), 2)
+        with self.subTest("Check for creation of a Profile model"):
+            all_profiles = Profile.objects.all()
+            print(all_profiles)
+            self.assertEqual(all_profiles.count(), 3)
 
     def test_create_missing_password(self): 
         """Tests the failure of creating a user due to missing the password_confirm field."""
         response = self.client.post(reverse("registeruser"), self.user_data_missing_password)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertNotEqual(response.status_code, status.HTTP_201_CREATED)
-        all_users = User.objects.all()
-        self.assertEqual(all_users.count(), 2)
-        self.assertNotEqual(all_users.count(), 3)
+        with self.subTest("User count has remained 2 and not increased to 3."):
+            all_users = User.objects.all()
+            self.assertEqual(all_users.count(), 2)
+            self.assertNotEqual(all_users.count(), 3)
 
     def test_create_invalid_password(self):
         """Tests the failure of creating a user due to non-matching passwords."""

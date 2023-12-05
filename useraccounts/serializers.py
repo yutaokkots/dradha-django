@@ -8,6 +8,9 @@ from .models import User
 class UserSerializer(serializers.ModelSerializer):
     """Class representing a serializer for the User model"""
 
+    bio = serializers.CharField(source='profile.bio')
+    location = serializers.CharField(source='profile.location')
+
     class Meta:
         """ Meta options for the UserSerializer.
 
@@ -20,7 +23,7 @@ class UserSerializer(serializers.ModelSerializer):
         """
 
         model = User
-        fields = ['id', 'username', 'email', "avatar_url"]
+        fields = ['id', 'username', 'email', "avatar_url", "bio", "location"]
 
 
 class CreateUserSerializer(serializers.Serializer):
@@ -90,23 +93,6 @@ class CreateUserSerializer(serializers.Serializer):
             raise serializers.ValidationError("Database error.")
         return attrs
     
-    # def is_valid(self, *args, **kwargs):
-    #     """Validates the password """
-    #     oauth_login = self.validated_data.get('oauth_login', 'False')
-    #     password = self.validated_data.get('password')
-    #     password_confirm = self.validated_data.get('password_confirm')
-
-    #     if oauth_login == "None":
-    #         if not password or not password_confirm:
-    #             raise serializers.ValidationError('Requires password.')
-    #         elif (password and 
-    #             password_confirm and 
-    #             password != password_confirm):
-    #             raise serializers.ValidationError('Passwords do not match.')
-    #     if oauth_login != "None" and oauth_login != "skej932kfnma58shdkel":
-    #         raise serializers.ValidationError("Error with account creation.")
-    #     return super(CreateUserSerializer, self).is_valid(*args, **kwargs)
-        
     def create(self, validated_data):
         """Creates a user instance """
         user = User.objects.create_user(
@@ -115,7 +101,8 @@ class CreateUserSerializer(serializers.Serializer):
             password=validated_data['password'] if validated_data["oauth_login"] == "None" else None,
         )       
         user.save()
-        user.oauth_login = validated_data["oauth_login"] if validated_data["oauth_login"] != "None" else "None"
-        user.avatar_url = validated_data["avatar_url"] if validated_data["avatar_url"] else "http://www.dradha.co/profile-images/avatar_osteospermum.jpg"
+        default_url = "http://www.dradha.co/profile-images/avatar_osteospermum.jpg"
+        user.avatar_url = validated_data.get("avatar_url", default_url) or default_url
+        user.oauth_login = validated_data.get("oauth_login", "None") or "None"
         user.save(update_fields=["oauth_login", "avatar_url"])
         return user

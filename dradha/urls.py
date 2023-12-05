@@ -26,6 +26,7 @@ urlpatterns = [
     path('oauth/', include('oauth.urls')),
     path('api/api-token-auth/', views.obtain_auth_token), 
     path('accounts/', include("django.contrib.auth.urls")),
+    path('api/profile/', include("profile.urls")),
     #path('o/', include('oauth2_provider.urls', namespace='oauth2_provider'))
     
 ]
