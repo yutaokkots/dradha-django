@@ -99,3 +99,4 @@ class CreateUserSerializer(serializers.Serializer):
         user.oauth_login = validated_data.get("oauth_login", "None") or "None"
         user.save(update_fields=["oauth_login", "avatar_url"])
         return user
+    

@@ -1,12 +1,10 @@
 """Test module for 'profile' models using Django REST framework"""
 import json
 from django.test import TestCase
-from django.db.utils import DataError, IntegrityError
 from django.urls import reverse
 from rest_framework import status
 from profile.models import Profile
 from useraccounts.models import User
-from useraccounts.serializers import UserSerializer
 from django.shortcuts import get_object_or_404
 
 VALID_USER = {
@@ -46,7 +44,23 @@ VALID_PROFILE_2 = {
 USER_CREATE_ENDPOINT = "/api/auth/createuser/"
 
 class TestProfileModel(TestCase):
-    """Class for testing the profile model. """
+    """Class for testing the profile model. 
+    
+    Methods
+    -------
+    setup()
+        Creates a user and a profile simultaenously (1:1 relationship).
+    test_user_creation()
+        Verifies the user was created during setup.
+    test_profile_update()
+        Updates the user profile with new information.
+    test_invalid_profile_edit()
+        (Failure) Attempts to edit a user profile with invalid profile fields. 
+    test_profile_get()
+        Retreives a valid user.
+    test_profile_get_invalid()
+        (Failure) Attempts to access a non-existent user. 
+    """
 
     def setUp(self):
         """ Set up the test for creating a user and a profile."""
@@ -154,7 +168,7 @@ class TestProfileModel(TestCase):
             for field in test_fields:
                 self.assertEqual(response.data[field], self.valid_profile_2[field])
             self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
-    
+
     def test_profile_get(self):
         """Tests getting profile information using a GET request."""
         username = self.valid_user_username 
