@@ -45,7 +45,6 @@ class UpdateProfileView(APIView):
             deserializer = ProfileSerializer(updated_profile)
             return Response(deserializer.data, status=status.HTTP_202_ACCEPTED)
         except serializers.ValidationError as e:
-            print(e)
             return Response({"error": e.detail}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             logger.error("An error occurred: %s", e, exc_info=True)

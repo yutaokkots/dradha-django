@@ -7,7 +7,7 @@ from rest_framework import status
 from profile.models import Profile
 from useraccounts.models import User
 from useraccounts.serializers import UserSerializer
-
+from django.shortcuts import get_object_or_404
 
 VALID_USER = {
     "username": "dradhauser",
@@ -73,7 +73,6 @@ class TestProfileModel(TestCase):
         for field in test_fields:
             self.assertEqual(response.data[field], self.valid_profile_1[field])
         self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
-        print(response.data)
 
     def test_user_creation(self):
         """ Tests the successful creation of a User and accompanying profile"""
@@ -89,7 +88,7 @@ class TestProfileModel(TestCase):
             self.assertEqual(addedUserProfile.user.username, "dradhauser")
 
     def test_profile_update(self):
-        """ Tests the update of the Profile model via a PUT request. """
+        """ Tests an update of the Profile model via a PUT request. """
         with self.subTest("Test the modification of the user profile"):
             edited_profile = {
                 "location":"",
@@ -107,56 +106,59 @@ class TestProfileModel(TestCase):
                 content_type='application/json',
                 HTTP_ACCEPT='application/json'
             )
-            print("here -> ",response)
-            print("here -> ",response.status_code)
-            #response = self.client.put(reverse("updateprofile"), edited_profile)
             test_fields = ["location", "bio", "company", "theme", "github_url", "website", "twitter_username"]
             for field in test_fields:
-                self.assertEqual(response.data[field], self.edited_profile[field])
-            # self.assertEqual(response.data["bio"], "Full-Stack Software Engineer")
-            # self.assertEqual(response.data["location"], "Denver, CO")
-            # self.assertEqual(response.data["company"], "Dradha")
-            # self.assertEqual(response.data["theme"], "dark")
-            # self.assertEqual(response.data["github_url"], "https://github.com/")
-            # self.assertEqual(response.data["website"], "www.dradha.co")
-            # self.assertEqual(response.data["twitter_username"], "dradha")
-            self.assertEqual(response.status, status.HTTP_202_ACCEPTED)
+                self.assertEqual(response.data[field], edited_profile[field])
+            self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
 
-    # def test_incomplete_profile_edit(self):
-    #     """Create another valid user, but unsuccessfully update invalid profile information."""
-    #     with self.subTest("Create a second valid user."):
-    #         response = self.client.post(USER_CREATE_ENDPOINT, self.valid_user_2)
-    #         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-    #         self.assertEqual(response.data["username"], self.valid_user_username_2)
-    #     with self.subTest("Attempt to update and retrieve a Profile model of the second user."):
-    #         incomplete_profile = {
-    #             "location":"Seattle, WA",
-    #             "bio":"Back-End Developer",
-    #             "company":"StartupOne",
-    #             "theme":"themecharlimitis10",
-    #             "github_url":"https://github.com/a08dk2",
-    #             "website":"www.StartupOne1.co",
-    #             "twitter_username":"@StartupOne"
-    #         }
-    #         response = self.client.put(reverse("updateprofile"), incomplete_profile)
-    #         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-    #         user_2 = User.objects.get(username=self.valid_user_username_2)
-    #         user_profile = Profile.objects.get(user=user_2)
-    #         test_fields = ["location", "bio", "company", "theme", "github_url", "website", "twitter_username"]
-    #         for field in test_fields:
-    #             self.assertEqual(user_profile[field], "")
-    #     with self.subTest("Successfully update and retrieve a Profile model via a PUT request."):
-    #         response = self.client.put(reverse("updateprofile"), self.valid_profile_2)
-    #         self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
-    #         test_fields = ["location", "bio", "company", "theme", "github_url", "website", "twitter_username"]
-    #         for field in test_fields:
-    #             self.assertEqual(response.data[field], self.valid_profile_2[field])
+    def test_invalid_profile_edit(self):
+        """Create another valid user, but unsuccessfully update invalid profile information."""
+        with self.subTest("Create another valid user (valid_user_2) which will create a Profile instance."):
+            response = self.client.post(USER_CREATE_ENDPOINT, self.valid_user_2)
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+            self.assertEqual(response.data["username"], self.valid_user_username_2)
+        with self.subTest("Attempt to update the valid_user_2's Profile with invalid data."):
+            invalid_profile = {
+                "location":"Seattle, WA",
+                "bio":"Back-End Developer",
+                "company":"StartupOne",
+                "theme":"themecharlimitis10",
+                "github_url":"https://github.com/a08dk2",
+                "website":"www.StartupOne1.co",
+                "twitter_username":"@StartupOne"
+            }
+            response = self.client.put(
+                reverse('updateprofile', 
+                    kwargs={'userslug': self.valid_user_username_2}), 
+                data=json.dumps(invalid_profile),
+                content_type='application/json',
+                HTTP_ACCEPT='application/json'
+            )
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        with self.subTest("Confirm incomplete profile was not saved in the Profile database."):
+            user_2 = get_object_or_404(User, username=self.valid_user_username_2)
+            user_profile = Profile.objects.get(user=user_2.id)
+            test_fields = ["location", "bio", "company", "theme", "github_url", "website", "twitter_username"]
+            for field in test_fields:
+                field_value = getattr(user_profile, field)
+                self.assertEqual(field_value, "")
+        with self.subTest("Successfully update valid profile info, and retrieve it via a PUT request."):
+            response = self.client.put(
+                reverse('updateprofile', 
+                    kwargs={'userslug': self.valid_user_username_2}), 
+                data=json.dumps(self.valid_profile_2),
+                content_type='application/json',
+                HTTP_ACCEPT='application/json'
+            )
+            test_fields = ["location", "bio", "company", "theme", "github_url", "website", "twitter_username"]
+            for field in test_fields:
+                self.assertEqual(response.data[field], self.valid_profile_2[field])
+            self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
     
     def test_profile_get(self):
         """Tests getting profile information using a GET request."""
         username = self.valid_user_username 
         response = self.client.get(reverse('getprofile', kwargs={'userslug': username}))
-        # response = self.client.get(f"{reverse('getprofile')}/{username}")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, self.valid_profile_1)
 
@@ -164,5 +166,4 @@ class TestProfileModel(TestCase):
         """Tests getting invalid profile information using a GET request."""
         invalid_username = "rmaraiwo"
         response = self.client.get(reverse('getprofile', kwargs={'userslug': invalid_username}))
-        # response = self.client.get(f"{reverse('getprofile')}/{invalid_username}")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

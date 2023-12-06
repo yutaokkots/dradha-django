@@ -145,6 +145,7 @@ class TestProfileModel(TestCase):
                 "website":"drada",
                 "twitter_username":"twittercharlimitis15"
             }
+            # Changing user_profile instance data
             user_profile.location = incomplete_profile["location"]
             user_profile.bio = incomplete_profile["bio"]
             user_profile.company = incomplete_profile["company"]

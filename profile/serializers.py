@@ -25,25 +25,32 @@ class UpdateProfileSerializer(serializers.ModelSerializer):
 
     location = serializers.CharField(
         required=False,
+        allow_blank=True,
         validators=[MaxLengthValidator(75)])
     bio = serializers.CharField(
         required=False,
+        allow_blank=True,
         validators=[MaxLengthValidator(200)])
     company = serializers.CharField(
-        validators=[MaxLengthValidator(100)],
-        required=False)
+        required=False,
+        allow_blank=True,
+        validators=[MaxLengthValidator(100)])
     theme = serializers.CharField(
-        validators=[MaxLengthValidator(10)],
-        required=False)
+        required=False,
+        allow_blank=True,
+        validators=[MaxLengthValidator(10)])
     github_url = serializers.CharField(
-        validators=[MaxLengthValidator(200)],
-        required=False)
+        required=False,
+        allow_blank=True,
+        validators=[MaxLengthValidator(200)])
     website = serializers.CharField(
-        validators=[MaxLengthValidator(200)],
-        required=False)
+        required=False,
+        allow_blank=True,
+        validators=[MaxLengthValidator(200)])
     twitter_username = serializers.CharField(
-        validators=[MaxLengthValidator(15)],
-        required=False)
+        required=False,
+        allow_blank=True,
+        validators=[MaxLengthValidator(15)])
     
     class Meta:
         """ Meta options for CreateProfileSerializer.
@@ -58,13 +65,22 @@ class UpdateProfileSerializer(serializers.ModelSerializer):
         model = Profile
         fields = ['user', 'location', 'bio', 'company', 'theme', 'github_url', 'website', 'twitter_username']
     
-    def validate(self, attrs):
-        """Validates the Profile information."""
-        fields = ["location", "bio", "company", "theme", "github_url", "website", "twitter_username"]
-        for field in fields:
-            if attrs[field] == "":
-                attrs[field] = None
-        return attrs        
+    """
+    {'location': [ErrorDetail(string='This field may not be blank.', code='blank')], 
+    'company': [ErrorDetail(string='This field may not be blank.', code='blank')], 
+    'theme': [ErrorDetail(string='This field may not be blank.', code='blank')], 
+    'github_url': [ErrorDetail(string='This field may not be blank.', code='blank')], 
+    'twitter_username': [ErrorDetail(string='This field may not be blank.', code='blank')]}
+    """
+
+
+    # def validate(self, attrs):
+    #     """Validates the Profile information."""
+    #     fields = ["location", "bio", "company", "theme", "github_url", "website", "twitter_username"]
+    #     for field in fields:
+    #         if attrs[field] == "":
+    #             attrs[field] = ""
+    #     return attrs        
 
     def update(self, instance, validated_data):
         """Updates the Profile information."""
