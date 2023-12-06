@@ -2,9 +2,10 @@ from django.shortcuts import render
 from rest_framework import status, serializers
 from rest_framework.views import APIView
 
-# Create your views here.
 
+# Create your views here.
 from .models import Profile
+from .serializers import CreateProfileSerializer
 
 # api/profile/
 class CreateProfileView(APIView):
@@ -21,3 +22,11 @@ class CreateProfileView(APIView):
         except:
             pass
         
+class UpdateProfileView(APIView):
+
+    def put(self, request, *args, **kwargs):
+        try:
+            data = request.data
+            serializer = CreateProfileSerializer(data=data)
+        except:
+            pass
