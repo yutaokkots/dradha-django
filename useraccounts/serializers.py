@@ -6,7 +6,7 @@ from django.contrib.auth.password_validation import validate_password
 from .models import User
 
 class UserSerializer(serializers.ModelSerializer):
-    """Class representing a serializer for the User model"""
+    """Class representing a serializer for the User model."""
 
     bio = serializers.CharField(source='profile.bio')
     location = serializers.CharField(source='profile.location')
@@ -30,32 +30,25 @@ class CreateUserSerializer(serializers.Serializer):
     """Serializer Class for creating a User instance"""
 
     username = serializers.CharField(
-        validators=[MinLengthValidator(4), MaxLengthValidator(30), UniqueValidator]
-    )
-
+        validators=[MinLengthValidator(4), MaxLengthValidator(30), UniqueValidator])
     email = serializers.EmailField(
         required=True,
-        validators=[EmailValidator, MaxLengthValidator(75)]
-    )
+        validators=[EmailValidator, MaxLengthValidator(75)])
     password = serializers.CharField(
         write_only=True,
         required=False,
         validators=[validate_password], 
-        style={"input_type": "password"}
-    )
+        style={"input_type": "password"})
     password_confirm = serializers.CharField(
         write_only=True,
         required=False,
-        style={"input_type": "password"}
-    )
+        style={"input_type": "password"})
     oauth_login = serializers.CharField(
-        required=True
-    )
+        required=True)
     avatar_url = serializers.CharField(
         required=False,
         allow_blank=True,
-        default="http://www.dradha.co/profile-images/avatar_osteospermum.jpg"
-    )
+        default="http://www.dradha.co/profile-images/avatar_osteospermum.jpg")
 
     class Meta:
         """ Meta options for the UserSerializer.
@@ -65,7 +58,7 @@ class CreateUserSerializer(serializers.Serializer):
         model (User): 
             The model associated with this serializer.
         fields (list):
-            A list of fields to include in the serialized output.
+            A list of fields for creating or updating a User instance.
         extra_kwargs:
             Additional options for specific fields, such as 'write_only' and 'min_length' for the 'password' field.
         """
@@ -77,7 +70,7 @@ class CreateUserSerializer(serializers.Serializer):
                          'min_length':6}}
 
     def validate(self, attrs):
-        """Validates the password and username"""
+        """Validates the password and username."""
         if attrs["oauth_login"] == "None":
             if not attrs["password"] or not attrs["password_confirm"]:
                 raise serializers.ValidationError('Requires password.')
@@ -94,7 +87,7 @@ class CreateUserSerializer(serializers.Serializer):
         return attrs
     
     def create(self, validated_data):
-        """Creates a user instance """
+        """Creates a user instance."""
         user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],
