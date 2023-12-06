@@ -20,7 +20,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = ["location", "bio", "company", "theme", "github_url", "website", "twitter_username"] 
         read_only_fields = ["user"]
 
-class CreateProfileSerializer(serializers.ModelSerializer):
+class UpdateProfileSerializer(serializers.ModelSerializer):
     """ Serializer class for creating and updating a Serializer instance."""
 
     location = serializers.CharField(
@@ -56,10 +56,24 @@ class CreateProfileSerializer(serializers.ModelSerializer):
             A list of fields for creating or updating a Profile instance.
         """
         model = Profile
-        fields = ['id', 'username', 'email', 'avatar_url', 'bio', 'location', 'company', 'theme', 'github_url', 'website', 'twitter_username']
+        fields = ['user', 'location', 'bio', 'company', 'theme', 'github_url', 'website', 'twitter_username']
     
     def validate(self, attrs):
         """Validates the Profile information."""
+        fields = ["location", "bio", "company", "theme", "github_url", "website", "twitter_username"]
+        for field in fields:
+            if attrs[field] == "":
+                attrs[field] = None
+        return attrs        
 
-    def update(self, validated_data):
+    def update(self, instance, validated_data):
         """Updates the Profile information."""
+        instance.location = validated_data.get('location', instance.location)
+        instance.bio = validated_data.get('bio', instance.bio)
+        instance.company = validated_data.get('company', instance.company)
+        instance.theme = validated_data.get('theme', instance.theme)
+        instance.github_url = validated_data.get('github_url', instance.github_url)
+        instance.website = validated_data.get('website', instance.website)
+        instance.twitter_username = validated_data.get('twitter_username', instance.twitter_username)
+        instance.save()
+        return instance

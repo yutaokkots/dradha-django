@@ -64,7 +64,7 @@ class CreateUserSerializer(serializers.Serializer):
         """
 
         model = User
-        fields = ['id','username', 'email',"oauth_login","avatar_url"]
+        fields = ["id", "username", "email", "oauth_login", "avatar_url"]
         extra_kwargs = {'password':
                         {'write_only':True,
                          'min_length':6}}

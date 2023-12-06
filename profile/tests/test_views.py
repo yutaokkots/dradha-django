@@ -1,11 +1,13 @@
 """Test module for 'profile' models using Django REST framework"""
+import json
 from django.test import TestCase
-from rest_framework import status
 from django.db.utils import DataError, IntegrityError
 from django.urls import reverse
+from rest_framework import status
 from profile.models import Profile
 from useraccounts.models import User
 from useraccounts.serializers import UserSerializer
+
 
 VALID_USER = {
     "username": "dradhauser",
@@ -59,20 +61,19 @@ class TestProfileModel(TestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data["username"], "dradhauser")
 
-        # """ Tests the update of the Profile model via a PUT request. """
-        # response = self.client.put(reverse("updateprofile"), self.valid_profile_1)
-        # test_fields = ["location", "bio", "company", "theme", "github_url", "website", "twitter_username"]
-        # for field in test_fields:
-        #     self.assertEqual(response.data[field], self.valid_profile_1[field])
-        # # self.assertEqual(response.data["location"], "Denver, CO")
-        # # self.assertEqual(response.data["bio"], "Full-Stack Engineer")
-        # # self.assertEqual(response.data["company"], "Dradha")
-        # # self.assertEqual(response.data["theme"], "dark")
-        # # self.assertEqual(response.data["github_url"], "https://github.com/")
-        # # self.assertEqual(response.data["website"], "www.dradha.co")
-        # # self.assertEqual(response.data["twitter_username"], "dradha")
-        # self.assertEqual(response.status, status.HTTP_202_ACCEPTED)
-
+        """ Tests the update of the Profile model via a PUT request. """
+        response = self.client.put(
+            reverse('updateprofile', 
+                kwargs={'userslug': self.valid_user_username}), 
+            data=json.dumps(self.valid_profile_1),
+            content_type='application/json',
+            HTTP_ACCEPT='application/json'
+        )
+        test_fields = ["location", "bio", "company", "theme", "github_url", "website", "twitter_username"]
+        for field in test_fields:
+            self.assertEqual(response.data[field], self.valid_profile_1[field])
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+        print(response.data)
 
     def test_user_creation(self):
         """ Tests the successful creation of a User and accompanying profile"""
@@ -87,30 +88,39 @@ class TestProfileModel(TestCase):
             addedUserProfile = Profile.objects.get(user=addedUser.id)
             self.assertEqual(addedUserProfile.user.username, "dradhauser")
 
-    # def test_profile_update(self):
-    #     """ Tests the update of the Profile model via a PUT request. """
-    #     with self.subTest("Test the modification of the user profile"):
-    #         edited_profile = {
-    #             "location":"",
-    #             "bio":"Full-Stack Software Engineer",
-    #             "company":"",
-    #             "theme":"",
-    #             "github_url":"",
-    #             "website":"www.dradha.co",
-    #             "twitter_username":""
-    #         }
-    #         response = self.client.put(reverse("updateprofile"), edited_profile)
-    #         test_fields = ["location", "bio", "company", "theme", "github_url", "website", "twitter_username"]
-    #         for field in test_fields:
-    #             self.assertEqual(response.data[field], self.edited_profile[field])
-    #         # self.assertEqual(response.data["bio"], "Full-Stack Software Engineer")
-    #         # self.assertEqual(response.data["location"], "Denver, CO")
-    #         # self.assertEqual(response.data["company"], "Dradha")
-    #         # self.assertEqual(response.data["theme"], "dark")
-    #         # self.assertEqual(response.data["github_url"], "https://github.com/")
-    #         # self.assertEqual(response.data["website"], "www.dradha.co")
-    #         # self.assertEqual(response.data["twitter_username"], "dradha")
-    #         self.assertEqual(response.status, status.HTTP_202_ACCEPTED)
+    def test_profile_update(self):
+        """ Tests the update of the Profile model via a PUT request. """
+        with self.subTest("Test the modification of the user profile"):
+            edited_profile = {
+                "location":"",
+                "bio":"Full-Stack Software Engineer",
+                "company":"",
+                "theme":"",
+                "github_url":"",
+                "website":"www.dradha.co",
+                "twitter_username":""
+            }
+            response = self.client.put(
+                reverse('updateprofile', 
+                    kwargs={'userslug': self.valid_user_username}), 
+                data=json.dumps(edited_profile),
+                content_type='application/json',
+                HTTP_ACCEPT='application/json'
+            )
+            print("here -> ",response)
+            print("here -> ",response.status_code)
+            #response = self.client.put(reverse("updateprofile"), edited_profile)
+            test_fields = ["location", "bio", "company", "theme", "github_url", "website", "twitter_username"]
+            for field in test_fields:
+                self.assertEqual(response.data[field], self.edited_profile[field])
+            # self.assertEqual(response.data["bio"], "Full-Stack Software Engineer")
+            # self.assertEqual(response.data["location"], "Denver, CO")
+            # self.assertEqual(response.data["company"], "Dradha")
+            # self.assertEqual(response.data["theme"], "dark")
+            # self.assertEqual(response.data["github_url"], "https://github.com/")
+            # self.assertEqual(response.data["website"], "www.dradha.co")
+            # self.assertEqual(response.data["twitter_username"], "dradha")
+            self.assertEqual(response.status, status.HTTP_202_ACCEPTED)
 
     # def test_incomplete_profile_edit(self):
     #     """Create another valid user, but unsuccessfully update invalid profile information."""

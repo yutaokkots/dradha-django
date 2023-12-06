@@ -6,6 +6,6 @@ from .views import ProfileView, UpdateProfileView
 
 urlpatterns = [
     path('createprofile/', ProfileView.as_view(), name="createprofile"),
-    path('updateprofile/', UpdateProfileView.as_view(), name="updateprofile"),
-    path('u/<str:userslug>/', ProfileView.as_view(), name="getprofile"), 
+    path('u/<slug:userslug>', UpdateProfileView.as_view(), name="updateprofile"),
+    path('u/<slug:userslug>/', ProfileView.as_view(), name="getprofile"), 
 ]
