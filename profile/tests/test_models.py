@@ -1,15 +1,9 @@
 """Test module for 'profile' models using Django REST framework"""
-import django
-django.setup()
 from django.test import TestCase
-from django.core.exceptions import ValidationError
 from django.db.utils import DataError, IntegrityError
 from rest_framework import status
 from useraccounts.models import User
 from profile.models import Profile
-from useraccounts.serializers import UserSerializer
-from django.urls import reverse
-
 
 VALID_USER_1 = {
     "username": "dradhauser",
@@ -56,7 +50,21 @@ VALID_OAUTH_USER = {
 USER_CREATE_ENDPOINT = "/api/auth/createuser/"
 
 class TestProfileModel(TestCase):
-    """Class for testing the profile model. """
+    """TestProfileModel - a TestCase Class for testing the profile model. 
+    
+    Methods
+    -------
+    setup()
+        Creates a user and a profile simultaenously (1:1 relationship).
+    test_user_creation()
+        Verifies the user was created during setup.
+    test_profile_edit()
+        Updates the user profile with new information.
+    test_incomplete_profile_edit()
+        (Failure) Attempts to edit a user profile with invalid profile fields. 
+    test_valid_oauth_user_profile()
+        Creates another user and profile
+    """
 
     def setUp(self):
         """ Set up the test for creating a user and a profile (1:1 relationship)."""
@@ -119,7 +127,7 @@ class TestProfileModel(TestCase):
             self.assertEqual(allProfiles.count(), 1)
 
     def test_incomplete_profile_edit(self):
-        """Create another valid user, but add invalid profile information."""
+        """Create another valid user, but unsuccessfully update invalid profile information."""
         with self.subTest("Create a second valid user."):
             response = self.client.post(USER_CREATE_ENDPOINT, self.valid_user_2)
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -156,21 +164,19 @@ class TestProfileModel(TestCase):
                 self.assertTrue(isinstance(caught_exception, (DataError, IntegrityError)))
             print("Assert raises were executed.")
 
-
+    def test_valid_oauth_user_profile(self):
+        response = self.client.post(USER_CREATE_ENDPOINT, self.valid_oauth_user)
+        self.assertEqual(response.data["username"], "OAuthUser")   
+        self.assertEqual(response.data["email"], "testOauthUser@mail.net") 
+        with self.subTest("Confirm another user was added"):
+            allUsers = User.objects.all()
+            self.assertEqual(allUsers.count(), 2)
+            self.assertNotEqual(allUsers.count(), 1)
+        with self.subTest("Test the number of Profiles after user registration"):
+            allProfiles = Profile.objects.all()
+            self.assertEqual(allProfiles.count(), 2)
+        with self.subTest("Test the created profile 'OAuthUser' can be retrieved"):
+            addedUser = User.objects.get(username="OAuthUser")
+            addedUserProfile = Profile.objects.get(user=addedUser.id)
+            self.assertEqual(addedUserProfile.user.username, "OAuthUser")
     
-   
-    
-    
-    
-   
-    
-    #     # user_profile = Profile.objects.get(user=user_2)
-    #     # print(user_profile)
-    #     profile_id = Profile.objects.update(user=user_2, **INCOMPLETE_PROFILE)
-    #     # updated_profile = Profile.objects.get(user=profile_id)
-    #     print(profile_id)
-        
-    # def test_valid_oauth_user_profile(self):
-    #     response = self.client.post(USER_CREATE_ENDPOINT, self.valid_oauth_user)
-    #     self.assertEqual(response.data["username"], "OAuthUser")   
-    #     self.assertEqual(response.data["email"], "testOauthUser@mail.net")   

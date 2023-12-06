@@ -1,12 +1,11 @@
 """Test module for 'profile' models using Django REST framework"""
-import django
-django.setup()
 from django.test import TestCase
 from rest_framework import status
-from useraccounts.models import User
-from profile.models import Profile
-from useraccounts.serializers import UserSerializer
+from django.db.utils import DataError, IntegrityError
 from django.urls import reverse
+from profile.models import Profile
+from useraccounts.models import User
+from useraccounts.serializers import UserSerializer
 
 VALID_USER = {
     "username": "dradhauser",
@@ -15,7 +14,7 @@ VALID_USER = {
     "password_confirm": "testpassword",
     "oauth_login": "None"
 }
-VALID_PROFILE = {
+VALID_PROFILE_1 = {
     "location":"Denver, CO",
     "bio":"Full-Stack Engineer",
     "company":"Dradha",
@@ -24,14 +23,22 @@ VALID_PROFILE = {
     "website":"www.dradha.co",
     "twitter_username":"dradha"
 }
-
 VALID_OAUTH_USER = {
-    "username": "dradhauser",
-    "email": "test@mellow.com",
+    "username": "starterupperuser",
+    "email": "test@startupOne1.co",
     "password": "",
     "password_confirm": "",
     "oauth_login": "skej932kfnma58shdkel",
-    "avatar_url":"www.dradha.co/newimage.png"
+    "avatar_url":"test@startupOne1.co/newimage.png"
+}
+VALID_PROFILE_2 = {
+    "location":"Seattle, WA",
+    "bio":"Back-End Developer",
+    "company":"StartupOne",
+    "theme":"light",
+    "github_url":"https://github.com/a08dk2",
+    "website":"www.StartupOne1.co",
+    "twitter_username":"@StartupOne"
 }
 
 USER_CREATE_ENDPOINT = "/api/auth/createuser/"
@@ -43,7 +50,10 @@ class TestProfileModel(TestCase):
         """ Set up the test for creating a user and a profile."""
         self.valid_user = VALID_USER
         self.valid_user_username = self.valid_user["username"]
-        self.valid_profile = VALID_PROFILE
+        self.valid_profile_1 = VALID_PROFILE_1
+        self.valid_user_2 = VALID_OAUTH_USER
+        self.valid_user_username_2 = self.valid_user_2["username"]
+        self.valid_profile_2 = VALID_PROFILE_2
 
         response = self.client.post(USER_CREATE_ENDPOINT, self.valid_user)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -62,14 +72,9 @@ class TestProfileModel(TestCase):
             addedUserProfile = Profile.objects.get(user=addedUser.id)
             self.assertEqual(addedUserProfile.user.username, "dradhauser")
 
-
-    def test_automatic_oauth_creation(self):
-        """ Tests the automatic creation of a profile model with an OAuth user"""
-
-
     def test_profile_update(self):
-        """ Tests the update of the Profile model """
-        response = self.client.put(reverse("updateprofile"), self.valid_profile)
+        """ Tests the update of the Profile model via a PUT request. """
+        response = self.client.put(reverse("updateprofile"), self.valid_profile_1)
         self.assertEqual(response.data["location"], "Denver, CO")
         self.assertEqual(response.data["bio"], "Full-Stack Engineer")
         self.assertEqual(response.data["company"], "Dradha")
@@ -89,7 +94,7 @@ class TestProfileModel(TestCase):
                 "website":"www.dradha.co",
                 "twitter_username":""
             }
-            response = self.client.PUT(reverse("updateprofile"), edited_profile)
+            response = self.client.put(reverse("updateprofile"), edited_profile)
             self.assertEqual(response.data["bio"], "Full-Stack Software Engineer")
             self.assertEqual(response.data["location"], "Denver, CO")
             self.assertEqual(response.data["company"], "Dradha")
@@ -98,3 +103,33 @@ class TestProfileModel(TestCase):
             self.assertEqual(response.data["website"], "www.dradha.co")
             self.assertEqual(response.data["twitter_username"], "dradha")
             self.assertEqual(response.status, status.HTTP_202_ACCEPTED)
+
+    def test_incomplete_profile_edit(self):
+        """Create another valid user, but unsuccessfully update invalid profile information."""
+        with self.subTest("Create a second valid user."):
+            response = self.client.post(USER_CREATE_ENDPOINT, self.valid_user_2)
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+            self.assertEqual(response.data["username"], self.valid_user_username_2)
+        with self.subTest("Attempt to update and retrieve a Profile model of the second user."):
+            incomplete_profile = {
+                "location":"Seattle, WA",
+                "bio":"Back-End Developer",
+                "company":"StartupOne",
+                "theme":"themecharlimitis10",
+                "github_url":"https://github.com/a08dk2",
+                "website":"www.StartupOne1.co",
+                "twitter_username":"@StartupOne"
+            }
+            response = self.client.put(reverse("updateprofile"), incomplete_profile)
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            user_2 = User.objects.get(username=self.valid_user_username_2)
+            user_profile = Profile.objects.get(user=user_2)
+            test_fields = ["location", "bio", "company", "theme", "github_url", "website", "twitter_username"]
+            for field in test_fields:
+                self.assertEqual(user_profile[field], "")
+        with self.subTest("Successfully update and retrieve a Profile model via a PUT request."):
+            response = self.client.put(reverse("updateprofile"), self.valid_profile_2)
+            self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+            test_fields = ["location", "bio", "company", "theme", "github_url", "website", "twitter_username"]
+            for field in test_fields:
+                self.assertEqual(response.data[field], self.valid_profile_2[field])
