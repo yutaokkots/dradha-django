@@ -1,12 +1,12 @@
 """Class-based views for the oauth and oauth related uri endpoints."""
+import os
 import urllib
 import logging
 import random
 import json
-from datetime import datetime
-import os
 import string
 import requests
+from datetime import datetime
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -71,18 +71,18 @@ class GithubOauthAPI(APIView):
             #1) 'self.verify_state()' checks the validity of the code
             if self.verify_state(self.params_state) and code:
                 url = GITHUB_URL
-                # 2) 'self.params_parser' creates a set of params for the next step
-                params = self.params_parser(code)
+                # 2) 'self.params_encoder' creates a set of params for the next step
+                params = self.params_encoder(code)
                 # 3) requests.post() sends a POST request to Github to request a token
                 timeout_seconds = 10
                 response = requests.post(url=url, params=params, timeout=timeout_seconds)
                 # 4) 'self.parse_access_token()' retrieves the 'access_token' from the response parameters. 
                 access_token = self.parse_access_token(response)               
                 # 5) send a GET request to the third party using the 'token' + receive the user data
-                user = self.user_info_access(access_token)
+                user_github = self.user_info_access(access_token)
                 # 6) 'self.serialize_github_user()' serializes and saves the new user 
                 # 7) parse the json object to get user data
-                print(user)
+                print(user_github)
                 # 8) create a user model instance with the user data, and generate a json web token
                 
                 response.raise_for_status()
@@ -119,7 +119,7 @@ class GithubOauthAPI(APIView):
         print(value == state)
         return value == state
 
-    def params_parser(self, auth_code: str) -> str:
+    def params_encoder(self, auth_code: str) -> str:
         """ Creates the url encoded parameters. """
         parameters = {
             "client_id": os.environ['SECRET_ID_GITHUB'], 
