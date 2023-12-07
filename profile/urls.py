@@ -1,6 +1,5 @@
+"""Module providing URL patterns for Profile-related API views"""
 from django.urls import path
-
-
 
 from .views import ProfileView, UpdateProfileView
 

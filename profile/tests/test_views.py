@@ -1,4 +1,4 @@
-"""Test module for 'profile' models using Django REST framework"""
+"""Test module for 'profile' related views using Django REST framework"""
 import json
 from django.test import TestCase
 from django.urls import reverse

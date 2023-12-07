@@ -33,14 +33,14 @@ class UserDetailAPI(APIView):
 
     ##@action(methods=['get'], detail=False, url_path='getuser')
     def get(self, request, user_id):
-        """Method for getting user information. """
+        """GET method for getting user information."""
         user = User.objects.get(id=user_id)
         serializer = UserSerializer(user)
         return Response(serializer.data)
     
     # draft
     def getProfile(self, request, user_id):
-        """Method for getting user information. """
+        """Method for getting user information."""
         user = User.objects.get(id=user_id)
         serializer = UserSerializer(user)
         return Response(serializer.data)
@@ -48,7 +48,7 @@ class UserDetailAPI(APIView):
 # api/auth/createuser
 class RegisterUserAPIView(APIView):
     """Class for registering a new user.
-    
+
     Attributes
     ----------
     permission_classes: 
@@ -58,8 +58,8 @@ class RegisterUserAPIView(APIView):
     """
 
     permission_classes = [AllowAny]
-    
     def post(self, request, *args, **kwargs):
+        """POST method to save a new User."""
         try:
             data = request.data
             serializer = CreateUserSerializer(data=data)

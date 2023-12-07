@@ -33,7 +33,6 @@ class GithubStateGenerator(APIView):
                 "timestamp":ts,
             }
             self.set_state(rand_state)
-
             return Response(data=response, status=status.HTTP_201_CREATED)
         except ValueError as value_error:
             error_message = f"ValueError: {value_error}"
@@ -48,7 +47,7 @@ class GithubStateGenerator(APIView):
         """Creates an ISO format timestamp"""
         return json.dumps(datetime.now().isoformat())
 
-    def set_state(self, state):
+    def set_state(self, state:str) -> None:
         """Saves the generated state in cache with a time-out of 10 minutes (600 seconds).
 
         For caching in psql database:
@@ -57,7 +56,6 @@ class GithubStateGenerator(APIView):
         """
         key_state = state[:5]
         cache.set(key_state, state, timeout=600)
-
 
 class GithubOauthAPI(APIView):
     """ Class for the callback route once user submits login information 
@@ -68,21 +66,20 @@ class GithubOauthAPI(APIView):
         """GET HTTP method for the callback URI for requesting an Auth token from Github."""
         try:
             params = request.query_params
-            params_state = params["state"]
+            self.params_state = params["state"]
             code = params["code"]
             #1) 'self.verify_state()' checks the validity of the code
-            if self.verify_state(params_state) and code:
+            if self.verify_state(self.params_state) and code:
                 url = GITHUB_URL
                 # 2) 'self.params_parser' creates a set of params for the next step
                 params = self.params_parser(code)
-                timeout_seconds = 10
                 # 3) requests.post() sends a POST request to Github to request a token
+                timeout_seconds = 10
                 response = requests.post(url=url, params=params, timeout=timeout_seconds)
                 # 4) 'self.parse_access_token()' retrieves the 'access_token' from the response parameters. 
                 access_token = self.parse_access_token(response)               
                 # 5) send a GET request to the third party using the 'token' + receive the user data
                 user = self.user_info_access(access_token)
-
                 # 6) 'self.serialize_github_user()' serializes and saves the new user 
                 # 7) parse the json object to get user data
                 print(user)
@@ -103,15 +100,26 @@ class GithubOauthAPI(APIView):
             # 10) front-end: app level, check for user information. 
         return redirect('http://localhost:3000')
 
-    def verify_state(self, state:str):
-        """ Gets the state by its key (first 5 chars), 
-            and verifies the cached state is equal to the input state.
+    def verify_state(self, state:str) -> bool:
+        """ Verifies the state in the cache.
+
+        Gets the state by its key (first 5 chars), 
+        and verifies that the cached state is equal to the input state.
+
+        Parameters
+        ----------
+        state : str
+
+        Returns
+        -------
+        bool
         """
-        value = cache.get(state[:5])
+        # use postgresql cache
+        value = cache.get(state[:5])    
         print(value == state)
         return value == state
 
-    def params_parser(self, auth_code):
+    def params_parser(self, auth_code: str) -> str:
         """ Creates the url encoded parameters. """
         parameters = {
             "client_id": os.environ['SECRET_ID_GITHUB'], 
@@ -121,14 +129,19 @@ class GithubOauthAPI(APIView):
         }
         return urllib.parse.urlencode(parameters)
 
-    def parse_access_token(self, res):
-        """ Parses the 'access_token' from a response"""
+    def parse_access_token(self, res) -> str:
+        """ Parses the 'access_token' from the json response."""
         response_data = str(res.content, encoding='utf-8')
         parameters = urllib.parse.parse_qs(response_data)
         return parameters["access_token"][0]
 
     def user_info_access(self, auth_token):
-        """ Accesses the user information from the Github server."""
+        """ Accesses the user information from the Github server.
+        
+        Parameters
+        ----------
+        auth_token : str
+        """
         try:
             headers = {"Authorization": f"Bearer {auth_token}"}
             timeout_seconds = 10
@@ -140,25 +153,50 @@ class GithubOauthAPI(APIView):
             return HttpResponseServerError
 
     def parse_for_user_model(self, user_data):
+        """ Parses the data to search for specific parameters used for the User model.
+
+        The state acts as a validation for the database that a user was created 
+        using the oauth process.
+
+        Parameters
+        ----------
+        user_data : dict
+
+        Returns
+        -------
+        dict
+            user information to be accepted by the User model.
+        """
         username = user_data["username"]
-        avatar_url = user_data["avatar_url"]
         email = user_data["email"]
-        oauth_login = True
+        oauth_login = self.params_state         # use the state from the oAuth process. 
+        avatar_url = user_data["avatar_url"]
         return {
             "username" : username, 
-            "avatar_url" : avatar_url, 
             "email" : email, 
+            "avatar_url" : avatar_url, 
             "oauth_login" : oauth_login
         }
-
+    
     def parse_for_profile_model(self, user_data):
+        """ Parses the data to search for specific parameters used for the Profile model.
+
+        Parameters
+        ----------
+        user_data : dict
+
+        Returns
+        -------
+        dict
+            user information to be accepted by the Profile model.
+        """
+
         bio = user_data["bio"]
         company = user_data["company"]
         github_url = user_data["github_url"]
         website = user_data["website"]
         location = user_data["location"]
         twitter_username = user_data["twitter_username"]
-
         return { "bio": bio,
             "company": company,
             "github_url": github_url,

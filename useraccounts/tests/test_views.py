@@ -196,7 +196,7 @@ class UserAPITest(APITestCase):
         self.assertNotEqual(all_users.count(), 4)
 
     def test_create_duplicate_user(self):
-        """Tests the creation of duplicate users in db"""
+        """Tests the creation of duplicate users in db."""
         response_1 = self.client.post(reverse("registeruser"), self.user_data)
         self.assertEqual(response_1.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertNotEqual(response_1.status_code, status.HTTP_201_CREATED)
@@ -207,7 +207,7 @@ class UserAPITest(APITestCase):
         self.assertNotEqual(all_users.count(), 4)
 
     def test_create_no_passwords(self):
-        """Tests the invalid creation of an invalid oauth user"""
+        """Tests the invalid creation of an invalid oauth user."""
         response = self.client.post(reverse("registeruser"), self.user_data_no_password)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertNotEqual(response.status_code, status.HTTP_201_CREATED)
@@ -216,7 +216,7 @@ class UserAPITest(APITestCase):
         self.assertNotEqual(all_users.count(), 3)
 
     def test_create_oauth_user(self):
-        """Tests the creation of a valid oauth user"""
+        """Tests the creation of a valid oauth user."""
         response = self.client.post(reverse("registeruser"), self.user_data_valid_oauth_user_2)
         self.assertEqual(response.data["avatar_url"], "www.dradha.co/newimage.png")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)

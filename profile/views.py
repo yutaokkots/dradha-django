@@ -13,16 +13,11 @@ logger = logging.getLogger(__name__)
 
 # api/profile/
 class ProfileView(APIView):
-    """ Class for creating a profile for a user
-    Attributes
-    ----------
-    serializer_class:
-        Use the UpdateProfileSerializer for serialization. 
-    """
+    """ Class for creating a profile for a user"""
 
     # api/profile/u/<slug:userslug>
     def get(self, request, userslug, *args, **kwargs):
-        """Method for retrieving an returning a user's information."""
+        """GET method for retrieving an returning a user's information."""
         try:
             user = get_object_or_404(User, username=userslug)
             profile = user.profile
@@ -34,7 +29,10 @@ class ProfileView(APIView):
             return Response({"error": "An unexpected error occurred"}, status=status.HTTP_400_BAD_REQUEST)
         
 class UpdateProfileView(APIView):
+    """ Class for editing a profile for a user"""
+
     def put(self, request, userslug, *args, **kwargs):
+        """PUT method for editing a user's Profile"""
         try:
             user = get_object_or_404(User, username=userslug)
             profile = user.profile

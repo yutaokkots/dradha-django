@@ -166,6 +166,7 @@ class TestProfileModel(TestCase):
             print("Assert raises were executed.")
 
     def test_valid_oauth_user_profile(self):
+        """Create an OAuth user and profile and confirm profile was created."""
         response = self.client.post(USER_CREATE_ENDPOINT, self.valid_oauth_user)
         self.assertEqual(response.data["username"], "OAuthUser")   
         self.assertEqual(response.data["email"], "testOauthUser@mail.net") 

@@ -18,7 +18,6 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework.authtoken import views
 
-
 urlpatterns = [
     path('personal/', include('personal.urls')),
     path('admin/', admin.site.urls),
@@ -28,5 +27,4 @@ urlpatterns = [
     path('accounts/', include("django.contrib.auth.urls")),
     path('api/profile/', include("profile.urls")),
     #path('o/', include('oauth2_provider.urls', namespace='oauth2_provider'))
-    
 ]
