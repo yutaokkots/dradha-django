@@ -2,13 +2,18 @@
 import json
 import urllib
 import re
+from unittest.mock import MagicMock
 from django.core.cache import cache
 from django.urls import reverse
+from django.http import HttpResponse
 from rest_framework import status
 from rest_framework.test import APITestCase
 from rest_framework.test import APIRequestFactory
 from oauth.views import GithubOauthAPI, GithubStateGenerator
 from useraccounts.models import User
+
+
+
 
 class GithubStateAPITEST(APITestCase):
     """Class for testing the OAuth endpoint for this app. 
@@ -24,7 +29,10 @@ class GithubStateAPITEST(APITestCase):
     self.request : class instance
         A mock request instance. 
     self.githuboauthapi : class instance
-        An instance of the GithubOauthAPI class
+        An instance of the GithubOauthAPI class.
+    self.response_state : string
+    self.response_token : HTTP object
+        A mock response containing token information.
     """
 
     def setUp(self):
@@ -38,6 +46,9 @@ class GithubStateAPITEST(APITestCase):
         self.request = self.factory.get(self.url_callback) ##, content_type='application/json', data=self.requestbody)
         self.githuboauthapi = GithubOauthAPI()
         self.response_state = ""
+        content = b'access_token=abcdefaccess1234token56789&scope=&token_type=bearer'
+        self.response_token = HttpResponse(content=content,  status=status.HTTP_200_OK)
+        self.response_token["Accept"] = "application/json"
 
     def test_success_get_state(self):
         """Test to retrieve a randomly generated state from the 'api/oauth/callback/state' URI."""
@@ -51,7 +62,8 @@ class GithubStateAPITEST(APITestCase):
 
     def test_githuboauthapi_class(self):
         """Tests the methods inside the GithubOauthAPI class"""
-        with self.subTest("Tests encoding the github code to url params - tests GithubOauthAPI.params_encoder()."):
+        with self.subTest("Tests encoding the github code to url params."):
+            """Tests GithubOauthAPI.params_encoder()"""
             code = "3908e6ff54e9a46bc"
             result = self.githuboauthapi.params_encoder(code)
             self.assertTrue(type(result), str)
@@ -69,10 +81,19 @@ class GithubStateAPITEST(APITestCase):
                 if key_str == "code=":
                     self.assertEqual(value_str, code)
 
+        with self.subTest("Tests parsing the access token from the HTTP response (from Github)."):
+            """Tests GithubOauthAPI.parse_access_token()."""
+            auth_token = self.githuboauthapi.parse_access_token(self.response_tokenesponse)
+            self.assertEqual(auth_token, "abcdefaccess1234token56789")
 
-            # print(parsed.find("client_id"))
-            # self.assertTrue()
-    
+        with self.subTest("Test parsing values for User model from the HTTP response(from Github)."):
+            """Tests GithubOauthAPI.parse_for_user_model()"""
+
+
+        with self.subTest("Test parsing values for Profile model from the HTTP response(from Github)."):
+            """Tests GithubOauthAPI.parse_for_profile_model()"""
+
+
     # def test_success_post(self):
     #     request = self.factory.post(self.url, json.dumps(self.requestbody), content_type='application/json')
     #     response = GithubOauthAPI.as_view()(request)

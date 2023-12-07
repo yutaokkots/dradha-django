@@ -18,6 +18,7 @@ from useraccounts.serializers import UserSerializer
 
 GITHUB_URL = 'https://github.com/login/oauth/access_token' # os.environ['SECRET_GITHUB_TOKEN_URL'] #
 GITHUB_URL_USER = 'https://api.github.com/user'
+REDIRECT_URI_TOKEN = 'http://localhost:8000/api/oauth/callback/'
 
 class GithubStateGenerator(APIView):
     """Class for generating and storing a state for Github OAuth Authorization"""
@@ -125,12 +126,12 @@ class GithubOauthAPI(APIView):
             "client_id": os.environ['SECRET_ID_GITHUB'], 
             "client_secret": os.environ['SECRET_KEY_GITHUB'], 
             "code": auth_code, 
-            "redirect_uri": "http://localhost:8000/oauth/callback/"
+            "redirect_uri": REDIRECT_URI_TOKEN
         }
         return urllib.parse.urlencode(parameters)
 
     def parse_access_token(self, res) -> str:
-        """ Parses the 'access_token' from the json response."""
+        """ Parses the 'access_token' from the HTTP response."""
         response_data = str(res.content, encoding='utf-8')
         parameters = urllib.parse.parse_qs(response_data)
         return parameters["access_token"][0]
