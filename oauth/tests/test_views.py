@@ -8,26 +8,33 @@ from oauth.views import GithubOauthAPI, GithubStateGenerator
 import json
 
 class GithubStateAPITEST(APITestCase):
-
+    """Class for testing the OAuth endpoint for this app. """
     def setUp(self):
-        """Set up the test method for receiving a request. """
+        """Set up the test method for receiving a request. 
+
+        self.url_callback : string
+            URI endpoint of "api/oauth/callback/"
+        """
         self.factory = APIRequestFactory()
-        self.url = reverse('callback')
+        self.url_callback = reverse('callback')
         self.requestbody = {
             "client_code": "abcdef",
             "length": 20,
         }
 
     def test_success_get_state(self):
-        request = self.factory.get(self.url) ##, content_type='application/json', data=self.requestbody)
+        request = self.factory.get(self.url_callback) ##, content_type='application/json', data=self.requestbody)
         response = GithubStateGenerator.as_view()(request)
         self.assertIn('state', response.data)
         self.assertIn('timestamp', response.data)
         self.assertTrue(response.data['state'])
         self.assertTrue(response.data['timestamp'])
         self.assertEqual(len(response.data['state']), self.requestbody["length"])
+        print(response.data)
     
+    def test_retrieve_state_from_cache(self):
 
+        
     # def test_success_post(self):
     #     request = self.factory.post(self.url, json.dumps(self.requestbody), content_type='application/json')
     #     response = GithubOauthAPI.as_view()(request)
