@@ -23,7 +23,7 @@ class User(AbstractUser):
         validators=[MinLengthValidator(4)])
     email = models.EmailField(
         max_length=75, 
-        blank=False, 
+        blank=True, 
         validators=[EmailValidator])
     oauth_login = models.CharField(
         default="None",
