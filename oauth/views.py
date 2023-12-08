@@ -184,19 +184,3 @@ class GithubOauthAPI(APIView):
         # UserSerializer()
 
         return user
-
-            # response_data = str(response.content, encoding='utf-8')
-            # parameters = urllib.parse.parse_qs(response_data)
-            # access_token = parameters["access_token"][0]
-
-    def oauth_uid_generator(self, service_name: str) -> str:
-        """ Random 20 character unique ID generator for the User model. 
-        service : str
-            Name of service (e.g. "dradha", "github")
-        """
-        char_length = 9
-        num_uid = [random.choice(string.ascii_letters + string.digits) for _ in range(char_length)]
-        suffix = "-" + "".join(num_uid)
-        if len(service_name) > 10:
-            service_name = service_name[0:10]
-        return service_name + suffix

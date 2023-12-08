@@ -12,7 +12,7 @@ from .models import User
 
 # api/auth/getUser
 class UserDetailAPI(APIView):
-    """Class for requesting user information.
+    """UserDetailAPI Class for requesting user information.
 
     Attributes
     ----------
@@ -37,17 +37,10 @@ class UserDetailAPI(APIView):
         user = User.objects.get(id=user_id)
         serializer = UserSerializer(user)
         return Response(serializer.data)
-    
-    # draft
-    def getProfile(self, request, user_id):
-        """Method for getting user information."""
-        user = User.objects.get(id=user_id)
-        serializer = UserSerializer(user)
-        return Response(serializer.data)
 
 # api/auth/createuser
 class RegisterUserAPIView(APIView):
-    """Class for registering a new user.
+    """RegisterUserAPIView Class for registering a new user.
 
     Attributes
     ----------
@@ -75,19 +68,6 @@ class RegisterUserAPIView(APIView):
             return Response({"error": e.detail}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({"error": "An unexpected error occurred"}, status=status.HTTP_400_BAD_REQUEST)
-    
-    # def perform_create(self, serializer):
-    #     serializer.save()
-
-    # def create(self, request, *args, **kwargs):
-
-    #     serializer = self.get_serializer(data=request.data)
-    #     serializer.is_valid(raise_exception=True)
-    #     self.perform_create(serializer)
-
-    #     headers = self.get_success_headers(serializer.data)
-
-    #     return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 # api/auth/oauthlogin
 class OAuthView():
