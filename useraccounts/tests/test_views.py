@@ -79,7 +79,7 @@ INVALID_OAUTH_USER = {
         }
 
 class UserAPITest(APITestCase):
-    """UserAPITest class for various test cases 
+    """UserAPITest Class for testing the User views (from useraccounts.tests.testviews).
 
     Methods
     -------
@@ -104,6 +104,13 @@ class UserAPITest(APITestCase):
     test_invalid_oauth_user()
         (Failure) Attempts to create an oauth user with incorrect permissions. 
     """
+
+    @classmethod
+    def setUpClass(cls):
+        """Method called before any tests are run."""
+        super().setUpClass()
+        doc_str = cls.__doc__.splitlines()
+        print("\n" + doc_str[0] if doc_str[0] else "")
 
     def setUp(self):
         """Set up the test method for creating a user"""

@@ -50,7 +50,7 @@ VALID_OAUTH_USER = {
 USER_CREATE_ENDPOINT = "/api/auth/createuser/"
 
 class TestProfileModel(TestCase):
-    """TestProfileModel - a TestCase Class for testing the profile model. 
+    """TestProfileModel Class for testing the Profile model (from profile.tests.test_models).
     
     Methods
     -------
@@ -65,6 +65,13 @@ class TestProfileModel(TestCase):
     test_valid_oauth_user_profile()
         Creates another user and profile
     """
+
+    @classmethod
+    def setUpClass(cls):
+        """Method called before any tests are run."""
+        super().setUpClass()
+        doc_str = cls.__doc__.splitlines()
+        print("\n" + doc_str[0] if doc_str[0] else "")
 
     def setUp(self):
         """ Set up the test for creating a user and a profile (1:1 relationship)."""

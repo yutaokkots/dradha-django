@@ -43,8 +43,8 @@ VALID_PROFILE_2 = {
 
 USER_CREATE_ENDPOINT = "/api/auth/createuser/"
 
-class TestProfileModel(TestCase):
-    """Class for testing the profile model. 
+class TestProfileView(TestCase):
+    """TestProfileView Class for testing the Profile view (from profile.tests.test_views).
     
     Methods
     -------
@@ -61,6 +61,13 @@ class TestProfileModel(TestCase):
     test_profile_get_invalid()
         (Failure) Attempts to access a non-existent user. 
     """
+
+    @classmethod
+    def setUpClass(cls):
+        """Method called before any tests are run."""
+        super().setUpClass()
+        doc_str = cls.__doc__.splitlines()
+        print("\n" + doc_str[0] if doc_str[0] else "")
 
     def setUp(self):
         """ Set up the test for creating a user and a profile."""

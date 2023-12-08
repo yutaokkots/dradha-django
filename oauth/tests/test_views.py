@@ -62,10 +62,10 @@ PROFILE_KEY = {
 }
 
 class GithubStateAPITEST(APITestCase):
-    """Class for testing the OAuth endpoint for this app. 
+    """GithuStateAPITEST Class for testing the OAuth views (from oauth.tests.test_views).
 
-    Attributes
-    ----------
+    Methods
+    -------
     self.factory : metaclass
         Instance of APIRequestFactory for creating a request. 
     self.url_callback : string
@@ -81,6 +81,13 @@ class GithubStateAPITEST(APITestCase):
         A mock response containing token information.
     self.user_info : dict
     """
+    
+    @classmethod
+    def setUpClass(cls):
+        """Method called before any tests are run."""
+        super().setUpClass()
+        doc_str = cls.__doc__.splitlines()
+        print("\n" + doc_str[0] if doc_str[0] else "")
 
     def setUp(self):
         """Set up the test method for receiving a request."""

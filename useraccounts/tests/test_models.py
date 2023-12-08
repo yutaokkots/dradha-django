@@ -1,4 +1,4 @@
-"""Test module for 'useraccounts' models using Django REST framework"""
+"""Test module for 'useraccounts' models: useraccounts.tests.test_models"""
 import django
 django.setup()
 from django.test import TestCase
@@ -6,7 +6,13 @@ from useraccounts.models import User
 from useraccounts.serializers import UserSerializer
 
 class TestUserModel(TestCase):
-    """Class for testing the User model."""
+    """TestUserModel Class for testing the User model (from useraccounts.tests.test_models)."""
+
+    @classmethod
+    def setUpClass(cls):
+        """Method called before any tests are run."""
+        super().setUpClass()
+        print("\n" + cls.__doc__)
 
     def setUp(self):
         """Method for setting up test case."""
