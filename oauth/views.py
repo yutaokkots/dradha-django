@@ -10,11 +10,10 @@ from datetime import datetime
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import serializers
 from django.shortcuts import redirect
-from django.core.cache import cache
 from django.http import HttpResponseServerError
 from useraccounts.serializers import UserSerializer
+from oauth.services import set_state, state_generator, verify_state, oauth_uid_generator
 
 GITHUB_URL = 'https://github.com/login/oauth/access_token' # os.environ['SECRET_GITHUB_TOKEN_URL'] #
 GITHUB_URL_USER = 'https://api.github.com/user'
@@ -27,38 +26,23 @@ class GithubStateGenerator(APIView):
         """Method for returning a randomly generated state for OAuth Authentication"""
         try:
             length = 20
-            rand_state = self.state_generator(length)
+            rand_state = state_generator(length)
             ts = self.timestamp()
             response = {
                 "state":rand_state,
                 "timestamp":ts,
             }
-            self.set_state(rand_state)
+            set_state(state=rand_state, key_length=5)
             return Response(data=response, status=status.HTTP_201_CREATED)
         except ValueError as value_error:
             error_message = f"ValueError: {value_error}"
             return Response(data={"error": error_message}, status=status.HTTP_400_BAD_REQUEST)
-
-    def state_generator(self, length:int) -> str:
-        """Generates a random state of length, 'length:int'. """
-        code = [random.choice(string.ascii_letters + string.digits) for _ in range(length)]
-        return "".join(code)
 
     def timestamp(self) -> str:
         """Creates an ISO format timestamp"""
         return json.dumps(datetime.now().isoformat())
 
     ## Create a validator to validate a secret key from front end - only designated app can cache the state. 
-
-    def set_state(self, state:str) -> None:
-        """Saves the generated state in cache with a time-out of 10 minutes (600 seconds).
-
-        For caching in psql database:
-        cache.set(key, value, timeout=DEFAULT_TIMEOUT, version=None) 
-        # DEFAULT_TIMEOUT is in seconds, an int.
-        """
-        key_state = state[:5]
-        cache.set(key_state, state, timeout=600)
 
 class GithubOauthAPI(APIView):
     """ Class for the callback route once user submits login information 
@@ -72,7 +56,7 @@ class GithubOauthAPI(APIView):
             self.params_state = params["state"]
             code = params["code"]
             #1) 'self.verify_state()' checks the validity of the code
-            if self.verify_state(self.params_state) and code:
+            if verify_state(state=self.params_state, key_length=5) and code:
                 url = GITHUB_URL
                 # 2) 'self.params_encoder' creates a set of params for the next step
                 params = self.params_encoder(code)
@@ -104,25 +88,6 @@ class GithubOauthAPI(APIView):
             #   return response
             # 10) front-end: app level, check for user information. 
         return redirect('http://localhost:3000')
-
-    def verify_state(self, state:str) -> bool:
-        """ Verifies the state in the cache.
-
-        Gets the state by its key (first 5 chars), 
-        and verifies that the cached state is equal to the input state.
-
-        Parameters
-        ----------
-        state : str
-
-        Returns
-        -------
-        bool
-        """
-        # use postgresql cache
-        value = cache.get(state[:5])    
-        print(value == state)
-        return value == state
 
     def params_encoder(self, auth_code: str) -> str:
         """ Creates the url encoded parameters. """
@@ -174,7 +139,7 @@ class GithubOauthAPI(APIView):
         """
         username = user_data["login"]
         email = user_data["email"]
-        oauth_login = self.oauth_uid_generator("github")     # use a custom function to generate a login
+        oauth_login = oauth_uid_generator("github")     # use a custom function to generate a login
         avatar_url = user_data["avatar_url"]
         return {
             "username" : username, 
@@ -224,11 +189,14 @@ class GithubOauthAPI(APIView):
             # parameters = urllib.parse.parse_qs(response_data)
             # access_token = parameters["access_token"][0]
 
-    def oauth_uid_generator(self, service: str) -> str:
-        """ Random unique ID generator for user. 
+    def oauth_uid_generator(self, service_name: str) -> str:
+        """ Random 20 character unique ID generator for the User model. 
         service : str
             Name of service (e.g. "dradha", "github")
         """
-        char_length = 7
+        char_length = 9
         num_uid = [random.choice(string.ascii_letters + string.digits) for _ in range(char_length)]
-        return service + "-" + "".join(num_uid)
+        suffix = "-" + "".join(num_uid)
+        if len(service_name) > 10:
+            service_name = service_name[0:10]
+        return service_name + suffix

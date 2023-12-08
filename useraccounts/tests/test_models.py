@@ -6,7 +6,7 @@ from useraccounts.models import User
 from useraccounts.serializers import UserSerializer
 
 class TestUserModel(TestCase):
-    """Class for testing the user model"""
+    """Class for testing the User model."""
 
     def setUp(self):
         """Method for setting up test case."""
@@ -30,14 +30,14 @@ class TestUserModel(TestCase):
         self.assertTrue(saved_user.check_password("testpassword"))
 
     def test_user_serializer(self):
-        """Test the UserSerializer with valid data"""
+        """Test the UserSerializer with valid data."""
         serializer = UserSerializer(instance=self.user)
         data = serializer.data
         self.assertEqual(data["username"], "testuser")
         self.assertEqual(data["email"], "testuser@example.com")
 
     def test_user_serializer_validation(self):
-        """Test the UserSerializer with invalid data"""
+        """Test the UserSerializer with invalid data."""
         invalid_data = {"username": "inv", "email": "invalid_email"}
         serializer = UserSerializer(data=invalid_data)
         self.assertFalse(serializer.is_valid())

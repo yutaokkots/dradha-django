@@ -1,9 +1,6 @@
 """Test module for views for 'oauth' app using Django REST framework"""
-import json
 import urllib
 import re
-from unittest.mock import MagicMock
-from django.core.cache import cache
 from django.urls import reverse
 from django.http import HttpResponse
 from rest_framework import status
@@ -11,11 +8,7 @@ from rest_framework.test import APITestCase
 from rest_framework.test import APIRequestFactory
 from oauth.views import GithubOauthAPI, GithubStateGenerator
 from useraccounts.models import User
-
-    # 'login': 'ace123',
-    # 'avatar_url': 'https://avatars.githubusercontent.com/u/1234567890123', 
-    # 'email': None, 
-    # 'oauth_login
+from oauth import services
 
 USER_INFO = {
     'login': 'ace123',
@@ -116,7 +109,7 @@ class GithubStateAPITEST(APITestCase):
         self.response_state = response.data['state']
 
     def test_githuboauthapi_class(self):
-        """Tests the methods inside the GithubOauthAPI class"""
+        """Tests the methods inside the GithubOauthAPI class."""
         with self.subTest("Tests encoding the github code to url params."):
             """Tests GithubOauthAPI.params_encoder()"""
             code = "3908e6ff54e9a46bc"
@@ -155,6 +148,20 @@ class GithubStateAPITEST(APITestCase):
             parsed_profile = self.githuboauthapi.parse_for_profile_model(self.user_info)
             for key in parsed_profile.keys():
                 self.assertEqual(parsed_profile[key], self.user_info[PROFILE_KEY[key]])
+
+    def test_oauth_services_module(self):
+        """Tests the functions in the oauth.services module."""
+        with self.subTest("Test for the oauth_uid_generator() function."):
+            site_names = ["github", "google", "dradha", "facebook",
+                          "thirteenchars", "fifteencharactr", "twentycharacterslong",
+                          "morethantwentycharacters"]
+            for service in site_names:
+                uid_1 = services.oauth_uid_generator(service)
+                uid_2 = services.oauth_uid_generator(service)
+                self.assertLessEqual(len(uid_1), 20)
+                self.assertLessEqual(len(uid_2), 20)
+                self.assertNotEqual(uid_1, uid_2)
+
 
 
     # def test_success_post(self):
