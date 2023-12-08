@@ -27,6 +27,7 @@ class User(AbstractUser):
         validators=[EmailValidator])
     oauth_login = models.CharField(
         default="None",
+        unique=True,
         max_length=20)
     avatar_url = models.CharField(
         max_length=300,

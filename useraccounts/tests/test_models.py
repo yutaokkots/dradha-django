@@ -29,7 +29,7 @@ class TestUserModel(TestCase):
 
     def test_user_model_creation(self):
         """Test the creation of a user instance."""
-        self.assertEqual(User.objects.count(), 1)
+        self.assertEqual(User.objects.count(), 1, "Number of users should be 1.")
         saved_user = User.objects.get(username="testuser")
         self.assertEqual(saved_user.username, "testuser")
         self.assertEqual(saved_user.email, "testuser@example.com")
@@ -44,10 +44,12 @@ class TestUserModel(TestCase):
 
     def test_user_serializer_validation(self):
         """Test the UserSerializer with invalid data."""
-        invalid_data = {"username": "inv", "email": "invalid_email"}
+        invalid_data = {
+            "username": "inv", 
+            "email": "invalid_email"
+            }
         serializer = UserSerializer(data=invalid_data)
         self.assertFalse(serializer.is_valid())
-        # how to write error assertion test cases?
         with self.assertRaises(AssertionError):
             self.assertIn(invalid_data["username"], serializer.errors)
         with self.assertRaises(AssertionError):
