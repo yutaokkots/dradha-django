@@ -48,6 +48,8 @@ class GithubStateGenerator(APIView):
         """Creates an ISO format timestamp"""
         return json.dumps(datetime.now().isoformat())
 
+    ## Create a validator to validate a secret key from front end - only designated app can cache the state. 
+
     def set_state(self, state:str) -> None:
         """Saves the generated state in cache with a time-out of 10 minutes (600 seconds).
 
@@ -79,7 +81,9 @@ class GithubOauthAPI(APIView):
                 response = requests.post(url=url, params=params, timeout=timeout_seconds)
                 # 4) 'self.parse_access_token()' retrieves the 'access_token' from the response parameters. 
                 access_token = self.parse_access_token(response)               
+                print(access_token)
                 # 5) send a GET request to the third party using the 'token' + receive the user data
+                
                 user_github = self.user_info_access(access_token)
                 # 6) 'self.serialize_github_user()' serializes and saves the new user 
                 # 7) parse the json object to get user data
@@ -168,9 +172,9 @@ class GithubOauthAPI(APIView):
         dict
             user information to be accepted by the User model.
         """
-        username = user_data["username"]
+        username = user_data["login"]
         email = user_data["email"]
-        oauth_login = self.params_state         # use the state from the oAuth process. 
+        oauth_login = self.oauth_uid_generator("github")     # use a custom function to generate a login
         avatar_url = user_data["avatar_url"]
         return {
             "username" : username, 
@@ -194,8 +198,8 @@ class GithubOauthAPI(APIView):
 
         bio = user_data["bio"]
         company = user_data["company"]
-        github_url = user_data["github_url"]
-        website = user_data["website"]
+        github_url = user_data["html_url"]
+        website = user_data["blog"]
         location = user_data["location"]
         twitter_username = user_data["twitter_username"]
         return { "bio": bio,
@@ -219,3 +223,12 @@ class GithubOauthAPI(APIView):
             # response_data = str(response.content, encoding='utf-8')
             # parameters = urllib.parse.parse_qs(response_data)
             # access_token = parameters["access_token"][0]
+
+    def oauth_uid_generator(self, service: str) -> str:
+        """ Random unique ID generator for user. 
+        service : str
+            Name of service (e.g. "dradha", "github")
+        """
+        char_length = 7
+        num_uid = [random.choice(string.ascii_letters + string.digits) for _ in range(char_length)]
+        return service + "-" + "".join(num_uid)
