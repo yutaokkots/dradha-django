@@ -17,6 +17,8 @@ class User(AbstractUser):
         A field for storing the email address.
     """
     
+    USERNAME_FIELD = "oauth_login"
+    
     username = models.CharField(
         max_length=30, 
         unique=True,
