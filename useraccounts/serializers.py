@@ -4,6 +4,7 @@ from rest_framework.validators import UniqueValidator
 from django.core.validators import EmailValidator, MinLengthValidator, MaxLengthValidator
 from django.contrib.auth.password_validation import validate_password
 from .models import User
+from oauth.services import verify_state
 
 class UserSerializer(serializers.ModelSerializer):
     """Class representing a serializer for the User model."""
@@ -70,7 +71,10 @@ class CreateUserSerializer(serializers.Serializer):
                          'min_length':6}}
 
     def validate(self, attrs):
-        """Validates the password and username."""
+        """User model validator for serialization.
+        
+        1. Determines the type of User being created ("oauth_login" == None -> dradha)
+        2/ Validates the password and username."""
         if attrs["oauth_login"] == "None":
             if not attrs["password"] or not attrs["password_confirm"]:
                 raise serializers.ValidationError('Requires password.')
@@ -78,9 +82,15 @@ class CreateUserSerializer(serializers.Serializer):
                 attrs['password_confirm'] and 
                 attrs['password'] != attrs['password_confirm']):
                 raise serializers.ValidationError('Passwords do not match.')
+        ## do a cache check on the attrs["oauth_login"] field. 
         if attrs["oauth_login"] != "None" and attrs["oauth_login"] != "skej932kfnma58shdkel":
             raise serializers.ValidationError("Error with account creation.")
-            
+        """
+        if (attrs["oauth_login"] != "None" and 
+                not verify_state(attrs["oauth_login"])):
+            raise serializers.ValidationError("Error with account creation.")
+
+        """
         existing_user = User.objects.filter(username=attrs["username"]).exists()
         if existing_user:
             raise serializers.ValidationError("Database error.")

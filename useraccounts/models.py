@@ -36,10 +36,14 @@ class User(AbstractUser):
         blank=True,
         default="http://www.dradha.co/profile-images/avatar_osteospermum.jpg")
 
+    #objects = CustomUserManager()
+
+
     def __str__(self):
         """Returns a string representation of the user's username"""
         return str(self.username)
 
+    
     # def create_user(cls, username, email, password, **kwargs):
     #     user = super().create_user(username, email, password)
     #     for field, value in kwargs.items():

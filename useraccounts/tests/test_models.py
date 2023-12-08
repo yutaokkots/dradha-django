@@ -54,3 +54,4 @@ class TestUserModel(TestCase):
             self.assertIn(invalid_data["username"], serializer.errors)
         with self.assertRaises(AssertionError):
             self.assertIn(invalid_data["email"], serializer.errors)
+
