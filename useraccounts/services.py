@@ -20,19 +20,33 @@ def find_oauthlogin_in_db(oauth_login) -> bool:
 
 
 
+# def modify_username(username:str) -> str:
+#     sol_name = sub_name = username[:30] if len(username) > 30 else username
+#     length = len(sub_name)
+#     count = 1
+#     while find_username_in_db(sub_name) and len(sub_name) < 30:
+#         count_length = len(str(count))
+#         if length == 30:
+#             sub_name = sub_name[:(length - count_length)] + str(count)
+#         else:
+#             sub_name = sol_name + str(count)
+#         count += 1
+#     return sub_name
+        
 def modify_username(username:str) -> str:
     sol_name = sub_name = username[:30] if len(username) > 30 else username
     length = len(sub_name)
     count = 1
-    while find_username_in_db(sub_name) and len(sub_name) < 30:
+    # modify here: find_username_in_db(sub_name) -> find_username_in_dict(username)
+    while find_username_in_db(sub_name) or length > 25:
         count_length = len(str(count))
-        if length == 30:
-            sub_name = sub_name[:(length - count_length)] + str(count)
-        else:
+        if length < 25:
             sub_name = sol_name + str(count)
+        else:
+            sub_name = sol_name[:length - count_length] + str(count)
         count += 1
     return sub_name
-
+    
 
 def modify_username(username:str) -> str:
     sol_name = sub_name = username[:30] if len(username) > 30 else username
