@@ -10,49 +10,49 @@ VALID_USER = {
             "email": "testuser@mail.com",
             "password": "testpassword",
             "password_confirm": "testpassword",
-            "oauth_login": "None"
+            "oauth_login": "Dradha"
         }
 MISSING_PASSWORD = {
             "username": "testuser",
             "email": "testuser@example.com",
             "password": "testpassword",
             "password_confirm": "",
-            "oauth_login": "None"
+            "oauth_login": "Dradha"
         }
 INVALID_PASSWORD = {
             "username": "testuser",
             "email": "testuser@example.com",
             "password": "testpassword",
             "password_confirm": "testpassworssd",
-            "oauth_login": "None"
+            "oauth_login": "Dradha"
         }
 INVALID_EMAIL = {
             "username": "testuser",
             "email": "testuser@",
             "password": "testpassword",
             "password_confirm": "testpassword",
-            "oauth_login": "None"
+            "oauth_login": "Dradha"
         }
 INVALID_USERNAME_SHORT = {
             "username": "tes",
             "email": "testuser@example.com",
             "password": "testpassword",
             "password_confirm": "testpassword",
-            "oauth_login": "None"
+            "oauth_login": "Dradha"
         }
 INVALID_USERNAME_LONG = {
             "username": "testtesttesttesttesttestusernametoolong",
             "email": "testuser@example.com",
             "password": "testpassword",
             "password_confirm": "testpassword",
-            "oauth_login": "None"
+            "oauth_login": "Dradha"
         }
 NO_PASSWORD = {
             "username": "testuser",
             "email": "testuser@example.com",
             "password": "",
             "password_confirm": "",
-            "oauth_login": "None",  
+            "oauth_login": "Dradha",  
         }
 VALID_OAUTH_USER = {
             "username": "oauthtestuser",
@@ -144,7 +144,7 @@ class UserAPITest(APITestCase):
             "email": "test@email.net",
             "password": "testpassword1",
             "password_confirm": "testpassword1",
-            "oauth_login": "None"
+            "oauth_login": "Dradha"
         })
         with self.subTest("Create a new valid user"):
             self.assertEqual(response.data["username"], "testabcdeuser")

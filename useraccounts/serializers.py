@@ -73,9 +73,9 @@ class CreateUserSerializer(serializers.Serializer):
     def validate(self, attrs):
         """User model validator for serialization.
         
-        1. Determines the type of User being created ("oauth_login" == None -> dradha)
+        1. Determines the type of User being created ("oauth_login" == "Dradha" -> dradha)
         2/ Validates the password and username."""
-        if attrs["oauth_login"] == "None":
+        if attrs["oauth_login"] == "Dradha":
             if not attrs["password"] or not attrs["password_confirm"]:
                 raise serializers.ValidationError('Requires password.')
             elif (attrs['password'] and 
@@ -83,10 +83,10 @@ class CreateUserSerializer(serializers.Serializer):
                 attrs['password'] != attrs['password_confirm']):
                 raise serializers.ValidationError('Passwords do not match.')
         ## do a cache check on the attrs["oauth_login"] field. 
-        if attrs["oauth_login"] != "None" and attrs["oauth_login"] != "skej932kfnma58shdkel":
+        if attrs["oauth_login"] != "Dradha" and attrs["oauth_login"] != "skej932kfnma58shdkel":
             raise serializers.ValidationError("Error with account creation.")
         """
-        if (attrs["oauth_login"] != "None" and 
+        if (attrs["oauth_login"] != "Dradha" and 
                 not verify_state(attrs["oauth_login"])):
             raise serializers.ValidationError("Error with account creation.")
 
@@ -101,11 +101,12 @@ class CreateUserSerializer(serializers.Serializer):
         user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],
-            password=validated_data['password'] if validated_data["oauth_login"] == "None" else None,
+            password=validated_data['password'] if validated_data["oauth_login"] == "Dradha" else None,
         )       
         user.save()
         default_url = "http://www.dradha.co/profile-images/avatar_osteospermum.jpg"
         user.avatar_url = validated_data.get("avatar_url", default_url) or default_url
+        ### need to get correct oauth_login information here. 
         user.oauth_login = validated_data.get("oauth_login", "None") or "None"
         user.save(update_fields=["oauth_login", "avatar_url"])
         return user

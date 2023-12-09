@@ -15,20 +15,33 @@ def verify_origin(origin_key: str) -> bool:
 def find_in_db(username:str) -> bool:
     return User.objects.filter(username=username).exists()
 
-    # try:
-    #     get_object_or_404(User, username=username)
-    #     return True
-    # except Http404:
-    #     return False
+
+def find_in_db_2(**kwargs) -> bool:
+    return User.objects.filter(**kwargs).exists()
+
 
 def modify_username(username:str) -> str:
-    pass
-    # if len(username) > 25:
-
-    # while not find_in_db(username):
-    #     len(username)
-    
+    sol_name = sub_name = username[:30] if len(username) > 30 else username
+    length = len(sub_name)
+    count = 1
+    while find_in_db(sub_name) and len(sub_name) < 30:
+        count_length = len(str(count))
+        if length == 30:
+            sub_name = sub_name[:(length - count_length)] + str(count)
+        else:
+            sub_name = sol_name + str(count)
+        count += 1
+    # while find_in_db(sub_name) and len(sub_name) < 30:
+    #     if len(sub_name) > 25:
+    #         sub_name = f"{sub_name[:25]}{count}"
+    #     else:  
+            
+    #         sub_name = f"{sub_name}{count}"
+    #     count += 1
+    return sub_name
     "hellobillycaretsnoop"
+
+
 
 def oauth_uid_generator(service_name: str) -> str:
     """ Random 20 character unique ID generator for the User model. 
