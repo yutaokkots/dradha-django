@@ -33,72 +33,14 @@ class TestUserServices(TestCase):
         for user in self.user_data_set:
             user_lst.append(User.objects.create_user(**user))
         self.user_1, self.user_2, self.user_3 = user_lst[0], user_lst[1], user_lst[2]
+        self.assertEqual(self.user_1.username, self.user_data_set[0]["username"])
+        self.assertEqual(self.user_2.username, self.user_data_set[1]["username"])
+        self.assertEqual(self.user_3.username, self.user_data_set[2]["username"])
 
     def test_user_find_username_in_db(self):
         """Test the 'find_username_in_db(username=)' function in oauth.services."""
         self.assertEqual(find_username_in_db(username="testuser"), True)
         self.assertEqual(find_username_in_db(username="inv"), False)
-
-    # def test_modify_username_function(self):
-    #     """Test the 'modify_username()' function in oauth.services."""
-    #     def find_username_in_dict(username):
-    #         return username in dictionary.keys()
-        
-    #     def modify_username(username:str) -> str:
-    #         sol_name = sub_name = username[:30] if len(username) > 30 else username
-    #         length = len(sub_name)
-    #         count = 1
-    #         # modify here: find_username_in_db(sub_name) -> find_username_in_dict(username)
-    #         while find_username_in_dict(sub_name):
-    #             count_length = len(str(count))
-
-    #             if length < 25:
-    #                 sub_name = sol_name + str(count)
-    #             else:
-    #                 print(length - count_length)
-    #                 sub_name = sol_name[:length - count_length] + str(count)
-    #                 print(sub_name)
-    #             count += 1
-    #             print(sub_name)
-    #         return sub_name
-    
-    #     dictionary = defaultdict(int)
-    #     # usernames_1 = ["bardo", "bardo", "bardo", "bardo", "bardo", "bardo", "bardo"]
-    #     usernames_2 = ["thisusernamehas33character6kjerd6", "thisusernamehas33character6kjerd6",  
-    #                 "thisusernamehas33character6kjerd6", "thisusernamehas33character6kjerd6",
-    #                 "thisusernamehas33character6kjerd6", "thisusernamehas33character6kjerd6",
-    #                 "thisusernamehas33character6kjerd6", "thisusernamehas33character6kjerd6"]
-        
-    #     # for u in usernames_1:
-    #     #     if u in dictionary.keys() or len(u) > 30:
-    #     #         u = modify_username(u)
-    #     #     dictionary[u] += 1
-    #     # print(dictionary)
-    #     # self.assertEqual(len(dictionary.keys()), len(usernames_1))
-    #     # for u in usernames_1:
-    #     #     if u in dictionary.keys() or len(u) > 30:
-    #     #         u = modify_username(u)
-    #     #     dictionary[u] += 1
-    #     # print(dictionary)
-
-    #     for u in usernames_2:
-    #         if u in dictionary.keys() or len(u) > 30:
-    #             print(u)
-    #             u = modify_username(u)
-    #             print(u)
-
-    #         dictionary[u] += 1
-    #     print(dictionary)
-  
-    #     for u in usernames_2:
-    #         if u in dictionary.keys() or len(u) > 30:
-    #             u = modify_username(u)
-    #         dictionary[u] += 1
-    #     print(dictionary)
-  
-
-
-
 
     def test_modify_username(self):
         """Test the 'modify_username()' function in oauth.services with the db.
@@ -171,28 +113,19 @@ class TestUserServices(TestCase):
                 user_name = mock_user_3["username"]
                 if (len(user_name) > 30 or 
                         find_username_in_db(username=user_name)):
-                    mock_user_3["username"] = modify_username(user_name)
-                    user = User.objects.create_user(**mock_user_3)
-                    self.assertNotEqual(user_name, user.username, "(failure) Users should not be the same.")
-            users = User.objects.all()
-            for u in users:
-                print(f"{u.username} - {u.oauth_login}")
+                    modified_username = modify_username(user_name)
+                    mock_user_3["username"] = modified_username
+                    self.assertNotEqual(modified_username, user_name, "(failure) Users should not be the same.")
+                user = User.objects.create_user(**mock_user_3)
+                user.save()
 
-    def test_oauth_login_function(self):
-        dictionary2 = defaultdict(int)
-        test_oauth_login = ["Dradha", "dradha", "abcdef", "Dradha", "Dradha-lmsHEJd09", 
-                    "dradha-lEsHJd09m", "dradha-lEsHJd09m", 
-                    "dradha-ld09mEsHJ", "dradha-ld09mEslkwejrlwkerHJ", 
-                    "dradha-llwkerjHJ",]
-        for ol in test_oauth_login:
-            if ol in dictionary2.keys() or len(ol) > 20:
-                match = re.search(r'^(.*?)-', ol)
-                service = match.group(1)
-                print(service)
-                ol = oauth_uid_generator()
-            dictionary2[ol] += 1
+            # users = User.objects.all()
+            # for u in users:
+            #     print(f"{u.username} - {u.oauth_login}")
 
-        print(dictionary2)
+#####
+
+
     #     for u in usernames_2:
     #         if u in dictionary.keys() or len(u) > 30:
     #             u = modify_username(u)
