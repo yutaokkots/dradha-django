@@ -16,10 +16,6 @@ def verify_origin(origin_key: str) -> bool:
 def find_username_in_db(username) -> bool:
     """Returns bool if 'username' exists in database for User model."""
     return User.objects.filter(username=username).exists()
-
-def find_oauthlogin_in_db(oauth_login) -> bool:
-    """Returns bool if 'oauth_login' exists in database for User model."""
-    return User.objects.filter(oauth_login=oauth_login).exists()
         
 def modify_username(username:str) -> str:
     """Modifies the username to meet unique=True and max_length=30 constraints."""
@@ -46,22 +42,25 @@ def oauth_uid_generator(service_name: str) -> str:
     suffix = "-" + "".join(num_uid)
     if len(service_name) > 10:
         service_name = service_name[0:10]
-    return service_name + suffix
+    return service_name + suffix if service_name.lower() in APPROVED_AUTH else "None"
 
 def oauth_uid_check_approved(uid:str) -> bool:
-    """Returns bool if uid contains allowed auth provider."""
+    """Returns bool of uid contains allowed auth provider and is a valid uid format.
+    valid: 'provider name (up to 10 char)" + "-" + "9-digit id"
+    """
     if len(uid) > 20:
         return False
     match_pre = re.search(r'^(.*?)-', uid)
     if not match_pre or uid.count('-') != 1:
         return False
     prov = match_pre.group(1)
-    print(prov)
-
     match_suf = re.search(r'-(.*?)$', uid)
     suffix = match_suf.group(1)
-    print(suffix)
-    return prov in APPROVED_AUTH
+    return prov.lower() in APPROVED_AUTH and len(suffix) == 9
+
+def find_oauthlogin_in_db(oauth_login) -> bool:
+    """Returns bool if 'oauth_login' exists in database for User model."""
+    return User.objects.filter(oauth_login=oauth_login).exists()
 
 # def modify_username(username:str) -> str:
 #     sol_name = sub_name = username[:30] if len(username) > 30 else username

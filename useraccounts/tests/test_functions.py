@@ -115,6 +115,8 @@ class TestUserServiceFunctions(TestCase):
             "dradha-123230990": True,   
             "Dradha-123230990": True,   
             "Dradha123230990": False,   
+            "Dradha-12!(*@&$&)()#_": False,   
+            "jkj2powqmnsdw!(*@&$&)()#_": False,   
             "dradha-jdfhk": False, 
             "abcdef": False, 
             "Dradha-": False, 
@@ -127,23 +129,47 @@ class TestUserServiceFunctions(TestCase):
             "dradha-ld09mEslkwejrlwkerHJ": False, 
             "google-jj239dhjk": False, 
             "dradha-jj-github-jkl": False, 
+            "": False
             }
-        
-        oauth_uid_check_approved("Dradha-123230990")
+        for id, passfail in test_oauth_login.items():
+            self.assertEqual(oauth_uid_check_approved(id), passfail)
 
-    # def test_oauth_login_function(self):
-    #     """Test the 'modify_username()' function using a dictionary to store data"""
-    #     dictionary2 = defaultdict(int)
-    #     test_oauth_login = ["Dradha", "dradha", "abcdef", "Dradha", "Dradha-lmsHEJd09", 
-    #                 "dradha-lEsHJd09m", "dradha-lEsHJd09m", 
-    #                 "dradha-ld09mEsHJ", "dradha-ld09mEslkwejrlwkerHJ", 
-    #                 "dradha-llwkerjHJ"]
-    #     for ol in test_oauth_login:
-    #         if ol in dictionary2.keys() or len(ol) > 20:
-    #             match = re.search(r'^(.*?)-', ol)
-    #             service = match.group(1)
-    #             print(service)
-    #             ol = oauth_uid_generator()
-    #         dictionary2[ol] += 1
+    def test_oauth_login_function(self):
+        """Test the 'oauth_uid_generator()' function in useraccounts.services."""
+        test_oauth_login = {
+            "Dradha": True,
+            "dradha": True,
+            "Github": True,
+            "github": True,
+            "google": False,
+            "abcdefghijklm": False,
+            "git": False,
+            "goog": False,
+            "": False,
+            "dradhaa":False,
+            "dradhaa-123456789":False,
+        }
+        for service, passfail in test_oauth_login.items():
+            uid = oauth_uid_generator(service)
+            if passfail == False:
+                self.assertTrue(uid, "None")
+            elif passfail == True:
+                self.assertGreaterEqual(len(uid), 10)
+                self.assertTrue(oauth_uid_check_approved(uid), True)
 
-    #     print(dictionary2)
+    def test_oauth_login_validation(self):
+        """Test the 'modify_username()' function using a dictionary to store data"""
+        dictionary2 = defaultdict(int)
+        test_oauth_login = ["Dradha", "dradha", "abcdef", "Dradha", "Dradha-lmsHEJd09", 
+                    "dradha-lEsHJd09m", "dradha-lEsHJd09m", 
+                    "dradha-ld09mEsHJ", "dradha-ld09mEslkwejrlwkerHJ", 
+                    "dradha-llwkerjHJ"]
+        for ol in test_oauth_login:
+            if ol in dictionary2.keys() or len(ol) > 20:
+                match = re.search(r'^(.*?)-', ol)
+                service = match.group(1)
+                print(service)
+                ol = oauth_uid_generator()
+            dictionary2[ol] += 1
+
+        print(dictionary2)
