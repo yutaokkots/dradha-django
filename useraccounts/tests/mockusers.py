@@ -6,7 +6,7 @@ mock_users = [
         "oauth_login": "dradha-lEsHJd09m"
     },
     {
-        "username": "sm2",
+        "username": "testuser",
         "email": "non-unique_email@example.com",
         "password": "anypassword",
         "oauth_login": "dradha-lEsiyyy09m"
@@ -114,55 +114,55 @@ mock_users_2 = [
 
 mock_users_3 = [
     {
-        "username": "creator1",
+        "username": "bardo",
         "email": "non-unique_email@example.com",
         "password": "anypassword",
         "oauth_login": "dradha-werwdfw9m2jd"
     },
     {
-        "username": "creator1",
+        "username": "bardo",
         "email": "non-unique_email@example.com",
         "password": "anypassword",
         "oauth_login": "dradha-jdlEserwdfw9m"
     },
     {
-        "username": "creator1",
+        "username": "bardo",
         "email": "non-unique_email@example.com",
         "password": "anypassword",
         "oauth_login": "dradha-serwdf09EsHm"
     },
     {
-        "username": "creator1",
+        "username": "bardo",
         "email": "non-unique_email@example.com",
         "password": "anypassword",
         "oauth_login": "dradha-jwdf09EsH9d0m"
     },
     {
-        "username": "creator1",
+        "username": "bardo",
         "email": "non-unique_email@example.com",
         "password": "anypassword",
         "oauth_login": "dradha-jdlEvahrjwdf0"
     },
     {
-        "username": "creator1",
+        "username": "bardo",
         "email": "non-unique_email@example.com",
         "password": "anypassword",
         "oauth_login": "dradha-jEvahrjdfm"
     },
     {
-        "username": "creator1",
+        "username": "bardo",
         "email": "non-unique_email@example.com",
         "password": "anypassword",
         "oauth_login": "dradha-jdahrjdfms"
     },
     {
-        "username": "creator1",
+        "username": "bardo",
         "email": "non-unique_email@example.com",
         "password": "anypassword",
         "oauth_login": "dradha-jdsjdahrjdm"
     },
     {
-        "username": "creator1",
+        "username": "bardo",
         "email": "non-unique_email@example.com",
         "password": "anypassword",
         "oauth_login": "dradha-jdlJjdsjdahr"
