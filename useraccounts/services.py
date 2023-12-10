@@ -22,7 +22,6 @@ def modify_username(username:str) -> str:
     sol_name = sub_name = username[:30] if len(username) > 30 else username
     length = len(sub_name)
     count = 1
-    # modify here: find_username_in_db(sub_name) -> find_username_in_dict(username)
     while find_username_in_db(sub_name):
         count_length = len(str(count))
         if length < 25:
@@ -31,6 +30,11 @@ def modify_username(username:str) -> str:
             sub_name = sol_name[:length - count_length] + str(count)
         count += 1
     return sub_name
+
+def username_validator(username:str) -> str:
+    if find_username_in_db(username):
+        username = modify_username(username)
+    return username
 
 def oauth_uid_generator(service_name: str) -> str:
     """Random 20 character unique ID generator for the User model. 
@@ -61,6 +65,13 @@ def oauth_uid_check_approved(uid:str) -> bool:
 def find_oauthlogin_in_db(oauth_login) -> bool:
     """Returns bool if 'oauth_login' exists in database for User model."""
     return User.objects.filter(oauth_login=oauth_login).exists()
+
+def oauth_login_validator(service:str) -> str:
+    uid = oauth_uid_generator(service)
+    while find_oauthlogin_in_db(uid) and not oauth_uid_check_approved(uid):
+        uid = oauth_uid_generator(service)
+    return uid
+
 
 # def modify_username(username:str) -> str:
 #     sol_name = sub_name = username[:30] if len(username) > 30 else username

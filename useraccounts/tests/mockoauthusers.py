@@ -61,7 +61,3 @@ mock_oauth_users = [
         "oauth_login": "dradha-llwkerjHJ"
     }
 ]
-test_oauth_login = ["Dradha", "dradha", "abcdef", "Dradha", "Dradha-lmsHEJd09", 
-                    "dradha-lEsHJd09m", "dradha-lEsHJd09m", 
-                    "dradha-ld09mEsHJ", "dradha-ld09mEslkwejrlwkerHJ", 
-                    "dradha-llwkerjHJ",]

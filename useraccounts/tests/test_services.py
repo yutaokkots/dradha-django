@@ -6,10 +6,10 @@ django.setup()
 from django.test import TestCase
 from django.db import transaction
 from django.db.utils import DataError, IntegrityError
-from useraccounts.services import find_oauthlogin_in_db, find_username_in_db, modify_username, oauth_uid_generator
+from useraccounts.services import find_username_in_db, modify_username, oauth_uid_check_approved, oauth_uid_generator, find_oauthlogin_in_db
 from useraccounts.models import User
 from useraccounts.tests.mockusers import mock_users, mock_users_2, mock_users_3
-from useraccounts.tests.mockoauthusers import mock_oauth_users, test_oauth_login
+from useraccounts.tests.mockoauthusers import mock_oauth_users
 
 USER_DATA_SET = [
     {"username": "testuser",    "email": "testuser@example.com",    "password": "testpassword", "oauth_login": "dradha-a23bv31"},
@@ -47,8 +47,8 @@ class TestUserServices(TestCase):
         Subtests ensure that:
             (1) user creation will fail if not unique, or length > 30;
             (2) if username does not fit constraints, then a new username 
-                    is created for the user and will be created; and       
-            (3) repeated usernames will cause the new username to have 
+                    is created for the user; and       
+            (3) duplicate username will cause the new username to have 
                     a number appended to the end. 
         """
         with self.subTest("(1) Subtest to ensure username field is less than 30 char."):
@@ -119,37 +119,21 @@ class TestUserServices(TestCase):
                 user = User.objects.create_user(**mock_user_3)
                 user.save()
 
-            # users = User.objects.all()
-            # for u in users:
-            #     print(f"{u.username} - {u.oauth_login}")
-
-#####
-
-
-    #     for u in usernames_2:
-    #         if u in dictionary.keys() or len(u) > 30:
-    #             u = modify_username(u)
-    #         dictionary[u] += 1
-    #     print(dictionary) 
-
-    def test_modify_oauth_login(self):
+    def test_valid_oauth_user(self):
         """Tests that the 'oauth-login' field is created effectively and is unique."""
         for mock_oauth_u in mock_oauth_users:
             user_name = mock_oauth_u["username"]
+            oauth_login = mock_oauth_u["oauth_login"]
             if find_username_in_db(username=user_name):
-                mock_oauth_u['username'] = modify_username(user_name)
-            
-        pass
-
-
-
-
-
-
-
-    def test_usercreation(self):
-
-        pass
-        
-
-
+                modified_username = modify_username(user_name)
+                mock_oauth_u['username'] = modified_username 
+            if (not oauth_uid_check_approved(oauth_login) or 
+                    not find_oauthlogin_in_db(oauth_login)):
+                modified_oauth = oauth_uid_generator("dradha")
+                mock_oauth_u["oauth_login"] = modified_oauth
+            user = User.objects.create_user(**mock_oauth_u)
+            user.save()
+        users = User.objects.all()
+        for u in users:
+            print(f"{u.username} - {u.oauth_login}")
+                        
