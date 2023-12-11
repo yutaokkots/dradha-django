@@ -5,6 +5,8 @@ from django.core.validators import EmailValidator, MinLengthValidator, MaxLength
 from django.contrib.auth.password_validation import validate_password
 from .models import User
 from oauth.services import verify_state
+from useraccounts.services import oauth_uid_check_approved, oauth_uid_get_service
+
 
 class UserSerializer(serializers.ModelSerializer):
     """Class representing a serializer for the User model."""
@@ -72,24 +74,22 @@ class CreateUserSerializer(serializers.Serializer):
 
     def validate(self, attrs):
         """User model validator for serialization.
-        
         1. Determines the type of User being created ("oauth_login" == "Dradha" -> dradha)
         2. Validates the password and username."""
-        if attrs["oauth_login"].lower() == "dradha":
+        service_type = oauth_uid_get_service(attrs["oauth_login"])
+        if service_type == "dradha":
             if not attrs["password"] or not attrs["password_confirm"]:
                 raise serializers.ValidationError('Requires password.')
             elif (attrs['password'] and 
                 attrs['password_confirm'] and 
                 attrs['password'] != attrs['password_confirm']):
                 raise serializers.ValidationError('Passwords do not match.')
-        ## do a cache check on the attrs["oauth_login"] field. 
-        if attrs["oauth_login"].lower() != "dradha" and attrs["oauth_login"] != "skej932kfnma58shdkel":
+        if service_type != "dradha" and not verify_state(attrs["oauth_login"]):
             raise serializers.ValidationError("Error with account creation.")
         """
         if (attrs["oauth_login"] != "Dradha" and 
                 not verify_state(attrs["oauth_login"])):
             raise serializers.ValidationError("Error with account creation.")
-
         """
         existing_user = User.objects.filter(username=attrs["username"]).exists()
         if existing_user:
@@ -101,13 +101,14 @@ class CreateUserSerializer(serializers.Serializer):
         user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],
-            password=validated_data['password'] if validated_data["oauth_login"] == "Dradha" else None,
+            password=validated_data['password'],
+            oauth_login=validated_data["oauth_login"]
         )       
         user.save()
         default_url = "http://www.dradha.co/profile-images/avatar_osteospermum.jpg"
         user.avatar_url = validated_data.get("avatar_url", default_url) or default_url
         ### need to get correct oauth_login information here. 
-        user.oauth_login = validated_data.get("oauth_login", "None") or "None"
+        #user.oauth_login = validated_data.get("oauth_login", "None") or "None"
         user.save(update_fields=["oauth_login", "avatar_url"])
         return user
     

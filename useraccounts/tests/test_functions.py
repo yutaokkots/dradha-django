@@ -4,7 +4,7 @@ django.setup()
 import re
 from django.test import TestCase
 from collections import defaultdict
-from useraccounts.services import oauth_uid_generator,  oauth_uid_check_approved
+from useraccounts.services import oauth_uid_generator,  oauth_uid_check_approved, oauth_uid_get_service, APPROVED_AUTH
 
 class TestUserServiceFunctions(TestCase):
     """Tests for services functions without using the database for username storage."""
@@ -173,3 +173,31 @@ class TestUserServiceFunctions(TestCase):
             dictionary2[ol] += 1
 
         print(dictionary2)
+
+    def test_oauth_uid_get_service(self):
+        test_oauth_login = {
+            "dradha-123230990": True,   
+            "Dradha-123230990": True,   
+            "Dradha123230990": False,   
+            "Dradha-12!(*@&$&)()#_": False,   
+            "jkj2powqmnsdw!(*@&$&)()#_": False,   
+            "dradha-jdfhk": False, 
+            "abcdef": False, 
+            "Dradha-": False, 
+            "dradha-": False, 
+            "Dradha-lmsHEJd09": True, 
+            "drad-lEsHJd09m": False,
+            "github-lEsHJd09m": True,
+            "Github-ld09mEsHJ": True, 
+            "Github-dradha-ldjirj": False, 
+            "dradha-ld09mEslkwejrlwkerHJ": False, 
+            "google-jj239dhjk": False, 
+            "dradha-jj-github-jkl": False, 
+            "": False
+            }
+        for test, passfail in test_oauth_login.items():
+            service = oauth_uid_get_service(test)
+            if not passfail:
+                self.assertEqual(service, "")
+            else:
+                self.assertIn(service, APPROVED_AUTH)

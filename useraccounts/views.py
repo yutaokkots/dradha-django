@@ -9,6 +9,7 @@ from rest_framework import generics
 from django.db import IntegrityError
 from .serializers import UserSerializer, CreateUserSerializer
 from .models import User
+from useraccounts.services import user_model_flow
 
 # api/auth/getUser
 class UserDetailAPI(APIView):
@@ -55,8 +56,10 @@ class RegisterUserAPIView(APIView):
         """POST method to save a new User."""
         try:
             data = request.data
-            
-            serializer = CreateUserSerializer(data=data)
+            prevalidated_data = user_model_flow(data)
+            serializer = CreateUserSerializer(data=prevalidated_data)
+            print(serializer.errors)
+            print("\n", serializer, "\n")
             serializer.is_valid(raise_exception=True)
             if serializer.is_valid():
                 try:

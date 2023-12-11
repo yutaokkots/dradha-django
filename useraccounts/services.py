@@ -46,21 +46,25 @@ def user_model_flow(user_data):
     Input
     -----
     user_data : dict
-        username : str
-        email : str
-        password : str
-        password_confirm : str 
-        oauth_login : str
-            Either "Dradha" or "Github" or other oauth service name.
-    Return
-    ------
-    user_object : dict
-        username : str
-        email : str
-        password : str
-        password_confirm : str 
-        oauth_login : str
-            Unique id (uid) created using the input.
+        A dictionary containing user data with the following keys:
+        - 'login': str - The user's login/username.
+        - 'email': str - The user's email address.
+        - 'password' : str - The user's password.
+        - 'password_confirm' : str - The user's confirmation password.
+        - 'oauth_login' : str - User's Auth login type; "Dradha", "Github", or other.
+    Returns
+    -------
+    dict
+        A dictionary representing a user object with the following fields:
+        - username : str - Validated and unique username.
+        - email : str - The user's email address
+        - password : str - The user's password.
+        - password_confirm : str - The user's confirmation password.
+        - oauth_login : str - Validated and unique id (uid) created using the input.
+    Notes
+    -----
+    - The 'login' and 'oauth_login' fields are processed through custom validation functions ('username_validator' and 'oauth_login_validator') to ensure uniqueness and validity.
+    - The 'oauth_login' is saved in cache using the 'set_state' function.
 
     """
     # Custom service function to ensure unique username.
@@ -71,17 +75,17 @@ def user_model_flow(user_data):
     # Use custom service function to ensure unique 'oauth_login' (uid).
     oauth_type = user_data["oauth_login"]
     oauth_login = oauth_login_validator(oauth_type)      
-
     user_object = {
             "username" : username, 
             "email" : email, 
             "oauth_login" : oauth_login,
-            "password" : password,
-            "password_confirm" : password_confirm
         }
-    set_state(state=oauth_login)
+    if password and password_confirm:
+        user_object["password"] = password
+        user_object["password_confirm"] = password_confirm
+    if oauth_type.lower() != "dradha":
+        set_state(state=oauth_login)
     return user_object
-
 
 def oauth_uid_generator(service_name: str) -> str:
     """Random 20 character unique ID generator for the User model. 
@@ -93,7 +97,14 @@ def oauth_uid_generator(service_name: str) -> str:
     suffix = "-" + "".join(num_uid)
     if len(service_name) > 10:
         service_name = service_name[0:10]
-    return service_name + suffix if service_name.lower() in APPROVED_AUTH else "None"
+    return service_name.lower() + suffix if service_name.lower() in APPROVED_AUTH else "None"
+
+def oauth_uid_get_service(uid: str) -> str:
+    if oauth_uid_check_approved(uid):
+        match = re.search(r'(.*)-', uid)
+        service = match.group(1)
+        return service.lower()
+    return ""
 
 def oauth_uid_check_approved(uid:str) -> bool:
     """Returns bool of uid contains allowed auth provider and is a valid uid format.
