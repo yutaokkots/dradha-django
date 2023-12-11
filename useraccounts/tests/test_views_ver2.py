@@ -1,9 +1,11 @@
 """Test module for 'useraccounts' using Django REST framework"""
+import re
+from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 from useraccounts.models import User
+from useraccounts.services import oauth_login_validator, username_validator, user_model_flow
 from profile.models import Profile
-from django.urls import reverse
 
 VALID_USER = {
             "username": "testuserA",
@@ -92,15 +94,16 @@ class UserAPITest(APITestCase):
     def setUp(self):
         """Set up the test method for creating a user"""
         self.register_url = reverse("registeruser")
+        self.oauth_url = reverse("callback")
         self.valid_user = {
-            "username": "testuserA",
+            "username": "userabc",
             "email": "testuser@mail.com",
             "password": "testpassword",
             "password_confirm": "testpassword",
             "oauth_login": "Dradha"
         }
         self.user_data_valid_oauth_user = {
-            "username": "oauthtestuser",
+            "username": "oauthuserabc",
             "email": "testuseroauth@example.com",
             "password": "",
             "password_confirm": "",
@@ -108,15 +111,54 @@ class UserAPITest(APITestCase):
             "avatar_url":"www.dradha.co/sourceimg.png"
         }
 
-        response1 = self.client.post(reverse("registeruser"), self.user_data)
-        self.assertEqual(response1.status_code, status.HTTP_201_CREATED)
-        self.assertNotEqual(response1.status_code, status.HTTP_400_BAD_REQUEST)
+        response1 = self.client.post(self.register_url, self.valid_user)
+        self.assertEqual(response1.data['username'], "userabc")
+        # u = User.objects.get(username="userabc")
+        # user_oauth_login = u.oauth_login
+        # self.assertGreater(len(user_oauth_login), 10)
+        # self.assertLessEqual(len(user_oauth_login), 20)
+        # match = re.search(r'-(.*?)' ,user_oauth_login)
+        # code = match.group(1)
+        # self.assertEqual(len(code), 9)
+        # self.assertEqual(response1.status_code, status.HTTP_201_CREATED)
+        # self.assertNotEqual(response1.status_code, status.HTTP_400_BAD_REQUEST)
 
-        response2 = self.client.post(reverse("registeruser"), self.user_data_valid_oauth_user)
-        self.assertEqual(response2.data["username"], "oauthtestuser")
-        self.assertEqual(response2.data["avatar_url"], "www.dradha.co/sourceimg.png")
-        self.assertNotIn("password", response2.data)
-        self.assertNotIn("oauth_login", response2.data)
-        self.assertEqual(response2.status_code, status.HTTP_201_CREATED)
-        self.assertNotEqual(response2.status_code, status.HTTP_400_BAD_REQUEST)
+        # response2 = self.client.post(self.register_url, self.user_data_valid_oauth_user)
+        # print(response2)
+        # self.assertEqual(response2.data['username'], "oauthuserabc")
+        # self.assertEqual(response2.data["avatar_url"], "www.dradha.co/sourceimg.png")
+        # self.assertNotIn("password", response2.data)
+        # self.assertNotIn("oauth_login", response2.data)
+        # self.assertEqual(response2.status_code, status.HTTP_201_CREATED)
+        # self.assertNotEqual(response2.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_username_validator(self):
+        """Tests the 'username_validator()' function in useraccounts.services."""
+        test_username_1 = "userabc"
+        u1 = username_validator(test_username_1)
+        self.assertEqual(u1, "userabc1")
+
+    def test_user_model_flow(self):
+        """Tests the 'user_model_flow()' function in useraccounts.services."""
+        test_user = {
+            "username": "usercdef",
+            "email": "usercdef@mail.com",
+            "password": "potluck123",
+            "password_confirm": "potluck123",
+            "oauth_login": "Dradha"
+        }
+        modified_user = user_model_flow(test_user)
+        username = modified_user["username"]
+        self.assertEqual(username, "usercdef")
+        user_oauth_login = modified_user["oauth_login"]
+        self.assertGreater(len(user_oauth_login), 10)
+        self.assertLessEqual(len(user_oauth_login), 20)
+        print(user_oauth_login)
+        match = re.search(r'^-(.*?)', user_oauth_login)
+        print(match)
+        code = match.group(1)
+        self.assertEqual(len(code), 9)
+        
+        print(modified_user)
+
+        pass

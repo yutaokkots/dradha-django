@@ -74,8 +74,8 @@ class CreateUserSerializer(serializers.Serializer):
         """User model validator for serialization.
         
         1. Determines the type of User being created ("oauth_login" == "Dradha" -> dradha)
-        2/ Validates the password and username."""
-        if attrs["oauth_login"] == "Dradha":
+        2. Validates the password and username."""
+        if attrs["oauth_login"].lower() == "dradha":
             if not attrs["password"] or not attrs["password_confirm"]:
                 raise serializers.ValidationError('Requires password.')
             elif (attrs['password'] and 
@@ -83,7 +83,7 @@ class CreateUserSerializer(serializers.Serializer):
                 attrs['password'] != attrs['password_confirm']):
                 raise serializers.ValidationError('Passwords do not match.')
         ## do a cache check on the attrs["oauth_login"] field. 
-        if attrs["oauth_login"] != "Dradha" and attrs["oauth_login"] != "skej932kfnma58shdkel":
+        if attrs["oauth_login"].lower() != "dradha" and attrs["oauth_login"] != "skej932kfnma58shdkel":
             raise serializers.ValidationError("Error with account creation.")
         """
         if (attrs["oauth_login"] != "Dradha" and 

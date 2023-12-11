@@ -55,6 +55,7 @@ class RegisterUserAPIView(APIView):
         """POST method to save a new User."""
         try:
             data = request.data
+            
             serializer = CreateUserSerializer(data=data)
             serializer.is_valid(raise_exception=True)
             if serializer.is_valid():

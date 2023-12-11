@@ -5,6 +5,7 @@ import re
 from django.shortcuts import get_object_or_404
 from django.http import Http404
 from useraccounts.models import User
+from oauth.services import set_state
 
 SECRET_DRADHA = os.environ.get('SECRET_KEY_DRADHA_FRONTEND_BACKEND')
 APPROVED_AUTH = ["dradha", "github"]
@@ -32,9 +33,55 @@ def modify_username(username:str) -> str:
     return sub_name
 
 def username_validator(username:str) -> str:
+    """This function uses helper functions to return a valid username. 
+    It checks to see if the input username is in the db, and if so, creates
+    a modfied version of the username. 
+    """
     if find_username_in_db(username):
         username = modify_username(username)
     return username
+
+def user_model_flow(user_data):
+    """Function to pass user_data and create valid fields prior to serialization.
+    Input
+    -----
+    user_data : dict
+        username : str
+        email : str
+        password : str
+        password_confirm : str 
+        oauth_login : str
+            Either "Dradha" or "Github" or other oauth service name.
+    Return
+    ------
+    user_object : dict
+        username : str
+        email : str
+        password : str
+        password_confirm : str 
+        oauth_login : str
+            Unique id (uid) created using the input.
+
+    """
+    # Custom service function to ensure unique username.
+    username = username_validator(user_data["username"])
+    email = user_data["email"]
+    password = user_data["password"]
+    password_confirm = user_data["password_confirm"]
+    # Use custom service function to ensure unique 'oauth_login' (uid).
+    oauth_type = user_data["oauth_login"]
+    oauth_login = oauth_login_validator(oauth_type)      
+
+    user_object = {
+            "username" : username, 
+            "email" : email, 
+            "oauth_login" : oauth_login,
+            "password" : password,
+            "password_confirm" : password_confirm
+        }
+    set_state(state=oauth_login)
+    return user_object
+
 
 def oauth_uid_generator(service_name: str) -> str:
     """Random 20 character unique ID generator for the User model. 
@@ -67,21 +114,15 @@ def find_oauthlogin_in_db(oauth_login) -> bool:
     return User.objects.filter(oauth_login=oauth_login).exists()
 
 def oauth_login_validator(service:str) -> str:
+    """This function uses helper functions to return a valid oauth_login. 
+    If it receives the name of a valid service, it generates a value for 
+    the 'oauth_login', which is a unique id for the user.
+    """
     uid = oauth_uid_generator(service)
+    # if "uid" == "None": create an exception
+    if uid == "None":
+        raise Exception
     while find_oauthlogin_in_db(uid) and not oauth_uid_check_approved(uid):
         uid = oauth_uid_generator(service)
     return uid
 
-
-# def modify_username(username:str) -> str:
-#     sol_name = sub_name = username[:30] if len(username) > 30 else username
-#     length = len(sub_name)
-#     count = 1
-#     while find_username_in_db(sub_name) and len(sub_name) < 30:
-#         count_length = len(str(count))
-#         if length == 30:
-#             sub_name = sub_name[:(length - count_length)] + str(count)
-#         else:
-#             sub_name = sol_name + str(count)
-#         count += 1
-#     return sub_name

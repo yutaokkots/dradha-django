@@ -13,14 +13,14 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 
     @classmethod
     def get_token(cls, user):
-        """Retrieves and gets the token for the user."""
+        """Class method that retrieves and returns the token for the user."""
         token = super().get_token(user)
         token['name'] = user.username
         return token 
 
 class MyTokenObtainPairView(TokenObtainPairView):
+    """"""
     serializer_class = MyTokenObtainPairSerializer
-
 
 def create_jwt_pair_for_user(user:User):
     """Creates a refresh token using simplejwt RefreshToken class."""

@@ -2,7 +2,7 @@
 import random
 import string
 from django.core.cache import cache
-from useraccounts.services import oauth_login_validator, find_oauthlogin_in_db, username_validator
+# from useraccounts.services import oauth_login_validator, find_oauthlogin_in_db, username_validator
 
 def set_state(state:str, key_length:int=20, timeout:int=600) -> None:
     """Saves the generated state in the cache with a time-out of 10 minutes (600 seconds).
@@ -37,24 +37,24 @@ def verify_state(state:str, key_length:int=20) -> bool:
     value = cache.get(state[:key_length])    
     return value == state
 
-def user_model_flow(user_data):
-    """ """
-    # Custom service function to ensure unique username.
-    username = username_validator(user_data["login"])
-    email = user_data["email"]
-    # Custom service function to ensure unique oauth_login (uid).
-    oauth_login = oauth_login_validator("github")      
-    avatar_url = user_data["avatar_url"]
+# def user_model_flow(user_data):
+#     """ """
+#     # Custom service function to ensure unique username.
+#     username = username_validator(user_data["login"])
+#     email = user_data["email"]
+#     # Custom service function to ensure unique oauth_login (uid).
+#     oauth_login = oauth_login_validator("github")      
+#     avatar_url = user_data["avatar_url"]
 
-    user_object = {
-            "username" : username, 
-            "email" : email, 
-            "avatar_url" : avatar_url, 
-            "oauth_login" : oauth_login
-        }
-    set_state(state=oauth_login)
+#     user_object = {
+#             "username" : username, 
+#             "email" : email, 
+#             "avatar_url" : avatar_url, 
+#             "oauth_login" : oauth_login
+#         }
+#     set_state(state=oauth_login)
 
-    pass
+#     pass
 """ 
     parses the user information for model
     - check that the username is unique; if not, create new one

@@ -13,7 +13,8 @@ from rest_framework.response import Response
 from django.shortcuts import redirect
 from django.http import HttpResponseServerError
 from useraccounts.serializers import UserSerializer
-from oauth.services import set_state, state_generator, verify_state, oauth_uid_generator
+from oauth.services import set_state, state_generator, verify_state
+from useraccounts.services import oauth_uid_generator
 
 GITHUB_URL = 'https://github.com/login/oauth/access_token' # os.environ['SECRET_GITHUB_TOKEN_URL'] #
 GITHUB_URL_USER = 'https://api.github.com/user'
@@ -43,6 +44,7 @@ class GithubStateGenerator(APIView):
         return json.dumps(datetime.now().isoformat())
 
     ## Create a validator to validate a secret key from front end - only designated app can cache the state. 
+
 
 class GithubOauthAPI(APIView):
     """ Class for the callback route once user submits login information 
