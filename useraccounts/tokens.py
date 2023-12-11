@@ -1,8 +1,12 @@
 """Module for JSON web-token generation"""
 from django.contrib.auth import get_user_model
+
+
+from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
+
 
 #from rest_framework_simplejwt.tokens import RefreshToken
 User = get_user_model()
@@ -18,6 +22,9 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['name'] = user.username
         return token 
 
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        
 class MyTokenObtainPairView(TokenObtainPairView):
     """"""
     serializer_class = MyTokenObtainPairSerializer
@@ -30,4 +37,6 @@ def create_jwt_pair_for_user(user:User):
         "refresh": str(refresh)
     }
     return tokens
+
+
 

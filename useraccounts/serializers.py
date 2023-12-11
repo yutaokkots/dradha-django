@@ -3,6 +3,7 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from django.core.validators import EmailValidator, MinLengthValidator, MaxLengthValidator
 from django.contrib.auth.password_validation import validate_password
+from django.contrib.auth import authenticate
 from .models import User
 from oauth.services import verify_state
 from useraccounts.services import oauth_uid_check_approved, oauth_uid_get_service
@@ -105,4 +106,18 @@ class CreateUserSerializer(serializers.Serializer):
         user.avatar_url = validated_data.get("avatar_url", default_url) or default_url
         user.save(update_fields=["avatar_url"])
         return user
+
+
+class LoginSerializer(serializers.Serializer):
+    """Class for login serialization."""
+
+    username = serializers.CharField()
+    password = serializers.CharField()
+
+    def validate(self, data):
+        """Validation function for users with username and password."""
+        user = authenticate(**data)
+        if user and user.is_active:
+            return user
+        raise serializers.ValidationError("Credentials are incorrect")
     

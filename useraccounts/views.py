@@ -1,15 +1,17 @@
 """Module providing view classes for user-related requests/responses."""
-from rest_framework import status, serializers
+from django.db import IntegrityError
+from django.contrib.auth import authenticate
+from rest_framework import status, serializers, generics, permissions
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import action
 from rest_framework import generics
-from django.db import IntegrityError
-from .serializers import UserSerializer, CreateUserSerializer
-from .models import User
+from useraccounts.serializers import UserSerializer, CreateUserSerializer, LoginSerializer
+from useraccounts.models import User
 from useraccounts.services import user_model_flow
+from useraccounts.tokens import MyTokenObtainPairSerializer
 
 # api/auth/getUser
 class UserDetailAPI(APIView):
@@ -74,3 +76,34 @@ class RegisterUserAPIView(APIView):
 # api/auth/oauthlogin
 class OAuthView():
     pass
+
+
+# class LoginAPI(generics.GenericAPIView):
+#     """Serializer class for logging in."""
+#     serializer_class = LoginSerializer
+#     permission_classes = (permissions.AllowAny,)
+#     # post request. (1) retrieves 'username' + 'password' from request, (2) serializes data and checks,
+#     # (3) if user is found, then create a new access token and returns user info + token
+#     def post(self, request,  *args, **kwargs):
+#         username = request.data["username"]
+#         password = request.data["password"]
+#         serializer = MyTokenObtainPairSerializer(data=request.data)
+#         user = authenticate(username=username, password=password)
+#         serializer.is_valid(raise_exception=True)
+#         if user is not None:
+#             token = create_jwt_pair_for_user(user)
+#             return Response({
+#                 "user": UserSerializer(user, context=self.get_serializer_context()).data,
+#                 "token": token,
+#             })
+#         return Response(status=status.HTTP_400_BAD_REQUEST)
+
+#     def create_jwt_pair_for_user(user:User):
+#         """Creates a refresh token using simplejwt RefreshToken class."""
+#         refresh = RefreshToken.for_user(user)
+#         tokens = {
+#             "access": str(refresh.access_token),
+#             "refresh": str(refresh)
+#         }
+#         return tokens
+
