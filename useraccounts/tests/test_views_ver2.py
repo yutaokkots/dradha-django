@@ -95,25 +95,26 @@ class UserAPITest(APITestCase):
         Perform a post-request using valid user info (for a normal registration process).
         """
         self.register_url = reverse("registeruser")
-        # self.oauth_url = reverse("callback")
-        # self.valid_user = {
-        #     "username": "userabc",
-        #     "email": "testuser@mail.com",
-        #     "password": "testpassword",
-        #     "password_confirm": "testpassword",
-        #     "oauth_login": "Dradha"
-        # }
-        # response1 = self.client.post(self.register_url, self.valid_user)
-        # self.assertEqual(response1.data['username'], "userabc")
-        # u = User.objects.get(username="userabc")
-        # user_oauth_login = u.oauth_login
-        # self.assertGreater(len(user_oauth_login), 10)
-        # self.assertLessEqual(len(user_oauth_login), 20)
-        # match = re.search(r'-(.*)', user_oauth_login)
-        # code = match.group(1)
-        # self.assertEqual(len(code), 9)
-        # self.assertEqual(response1.status_code, status.HTTP_201_CREATED)
-        # self.assertNotEqual(response1.status_code, status.HTTP_400_BAD_REQUEST)
+        self.oauth_url = reverse("callback")
+        self.valid_user = {
+            "username": "userabc",
+            "email": "testuser@mail.com",
+            "password": "testpassword",
+            "password_confirm": "testpassword",
+            "oauth_login": "Dradha"
+        }
+        response1 = self.client.post(self.register_url, self.valid_user)
+        self.assertEqual(response1.data['username'], "userabc")
+        u = User.objects.get(username="userabc")
+        user_oauth_login = u.oauth_login
+        self.assertGreater(len(user_oauth_login), 10)
+        self.assertLessEqual(len(user_oauth_login), 20)
+        match = re.search(r'-(.*)', user_oauth_login)
+        code = match.group(1)
+        self.assertEqual(len(code), 9)
+        self.assertEqual(response1.status_code, status.HTTP_201_CREATED)
+        self.assertNotEqual(response1.status_code, status.HTTP_400_BAD_REQUEST)
+        print("UserAPITest.setUp() (success).")
 
     def test_oauth_user_flow(self) -> None:
         """Perform a post-request using valid user info (for an oauth registration process)."""
@@ -121,21 +122,20 @@ class UserAPITest(APITestCase):
             "username": "oauthuserabc",
             "email": "testuseroauth@example.com",
             "oauth_login": "Github",
+            "password": "",
+            "password_confirm": "",
             "avatar_url":"www.dradha.co/sourceimg.png"
         }
-
         response2 = self.client.post(self.register_url, test_user)
-        print(response2.status_code)
-        # self.assertEqual(response2.data['username'], "oauthuserabc")
-        # self.assertEqual(response2.data["avatar_url"], "www.dradha.co/sourceimg.png")
-        # self.assertNotIn("password", response2.data)
-        # self.assertNotIn("oauth_login", response2.data)
-        # self.assertEqual(response2.status_code, status.HTTP_201_CREATED)
-        # self.assertNotEqual(response2.status_code, status.HTTP_400_BAD_REQUEST)
-        # u = User.objects.all()
-        # for user in u:
-        #     print(user)
+        self.assertEqual(response2.data['username'], "oauthuserabc")
+        self.assertEqual(response2.data["avatar_url"], "www.dradha.co/sourceimg.png")
+        self.assertNotIn("password", response2.data)
+        self.assertNotIn("oauth_login", response2.data)
+        self.assertEqual(response2.status_code, status.HTTP_201_CREATED)
+        self.assertNotEqual(response2.status_code, status.HTTP_400_BAD_REQUEST)
+        print("UserAPITest.test_oauth_user_flow() (success).")
 
+        
     # def test_username_validator(self):
     #     """Tests the 'username_validator()' function in useraccounts.services."""
     #     test_username_1 = "userabc"

@@ -28,14 +28,14 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'username', 'email', "avatar_url", "bio", "location"]
 
-
 class CreateUserSerializer(serializers.Serializer):
     """Serializer Class for creating a User instance"""
 
     username = serializers.CharField(
+        required=True,
         validators=[MinLengthValidator(4), MaxLengthValidator(30), UniqueValidator])
     email = serializers.EmailField(
-        required=True,
+        required=False,
         validators=[EmailValidator, MaxLengthValidator(75)])
     password = serializers.CharField(
         write_only=True,
@@ -75,7 +75,8 @@ class CreateUserSerializer(serializers.Serializer):
     def validate(self, attrs):
         """User model validator for serialization.
         1. Determines the type of User being created ("oauth_login" == "Dradha" -> dradha)
-        2. Validates the password and username."""
+        2. Validates the password and username.
+        """
         service_type = oauth_uid_get_service(attrs["oauth_login"])
         if service_type == "dradha":
             if not attrs["password"] or not attrs["password_confirm"]:
@@ -86,11 +87,6 @@ class CreateUserSerializer(serializers.Serializer):
                 raise serializers.ValidationError('Passwords do not match.')
         if service_type != "dradha" and not verify_state(attrs["oauth_login"]):
             raise serializers.ValidationError("Error with account creation.")
-        """
-        if (attrs["oauth_login"] != "Dradha" and 
-                not verify_state(attrs["oauth_login"])):
-            raise serializers.ValidationError("Error with account creation.")
-        """
         existing_user = User.objects.filter(username=attrs["username"]).exists()
         if existing_user:
             raise serializers.ValidationError("Database error.")
@@ -99,16 +95,14 @@ class CreateUserSerializer(serializers.Serializer):
     def create(self, validated_data):
         """Creates a user instance."""
         user = User.objects.create_user(
-            username=validated_data['username'],
-            email=validated_data['email'],
-            password=validated_data['password'],
-            oauth_login=validated_data["oauth_login"]
+            username=validated_data.get('username'),
+            email=validated_data.get('email'),
+            password=validated_data.get('password'),
+            oauth_login=validated_data.get("oauth_login")
         )       
         user.save()
         default_url = "http://www.dradha.co/profile-images/avatar_osteospermum.jpg"
         user.avatar_url = validated_data.get("avatar_url", default_url) or default_url
-        ### need to get correct oauth_login information here. 
-        #user.oauth_login = validated_data.get("oauth_login", "None") or "None"
-        user.save(update_fields=["oauth_login", "avatar_url"])
+        user.save(update_fields=["avatar_url"])
         return user
     

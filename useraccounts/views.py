@@ -58,8 +58,6 @@ class RegisterUserAPIView(APIView):
             data = request.data
             prevalidated_data = user_model_flow(data)
             serializer = CreateUserSerializer(data=prevalidated_data)
-            print(serializer.errors)
-            print("\n", serializer, "\n")
             serializer.is_valid(raise_exception=True)
             if serializer.is_valid():
                 try:

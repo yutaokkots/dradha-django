@@ -5,7 +5,7 @@ import re
 from django.shortcuts import get_object_or_404
 from django.http import Http404
 from useraccounts.models import User
-from oauth.services import set_state
+from oauth.services import set_state, verify_state
 
 SECRET_DRADHA = os.environ.get('SECRET_KEY_DRADHA_FRONTEND_BACKEND')
 APPROVED_AUTH = ["dradha", "github"]
@@ -70,11 +70,12 @@ def user_model_flow(user_data):
     # Custom service function to ensure unique username.
     username = username_validator(user_data["username"])
     email = user_data["email"]
-    password = user_data["password"]
-    password_confirm = user_data["password_confirm"]
+    password = user_data.get("password")
+    password_confirm = user_data.get("password_confirm")
     # Use custom service function to ensure unique 'oauth_login' (uid).
     oauth_type = user_data["oauth_login"]
-    oauth_login = oauth_login_validator(oauth_type)      
+    oauth_login = oauth_login_validator(oauth_type)
+    avatar_url = user_data.get("avatar_url")
     user_object = {
             "username" : username, 
             "email" : email, 
@@ -83,6 +84,8 @@ def user_model_flow(user_data):
     if password and password_confirm:
         user_object["password"] = password
         user_object["password_confirm"] = password_confirm
+    if avatar_url:
+        user_object["avatar_url"] = avatar_url
     if oauth_type.lower() != "dradha":
         set_state(state=oauth_login)
     return user_object
