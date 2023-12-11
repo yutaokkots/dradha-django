@@ -10,11 +10,14 @@ from datetime import datetime
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.request import Request
 from django.shortcuts import redirect
+from django.db import IntegrityError
 from django.http import HttpResponseServerError
 from useraccounts.serializers import UserSerializer
 from oauth.services import set_state, state_generator, verify_state
-from useraccounts.services import oauth_uid_generator
+from useraccounts.services import oauth_uid_generator, user_model_flow
+from useraccounts.serializers import UserSerializer, CreateUserSerializer
 
 GITHUB_URL = 'https://github.com/login/oauth/access_token' # os.environ['SECRET_GITHUB_TOKEN_URL'] #
 GITHUB_URL_USER = 'https://api.github.com/user'
@@ -69,14 +72,20 @@ class GithubOauthAPI(APIView):
                 access_token = self.parse_access_token(response)               
                 print(access_token)
                 # 5) send a GET request to the third party using the 'token' + receive the user data
-                
                 user_github = self.user_info_access(access_token)
                 # 6) 'self.serialize_github_user()' serializes and saves the new user 
                 # 7) parse the json object to get user data
-                print(user_github)
                 # 8) create a user model instance with the user data, and generate a json web token
+                user_model = self.parse_for_user_model(user_github)
+                prevalidated_data = user_model_flow(user_model)
+                print(prevalidated_data)
+                serializer = CreateUserSerializer(data=prevalidated_data)
+                serializer.is_valid(raise_exception=True)
+                if serializer.is_valid():
+                    userdata = serializer.create(serializer.validated_data)
+                    # deserializer = UserSerializer(userdata)
+                    # return Response(deserializer.data, status=status.HTTP_201_CREATED)
                 
-                response.raise_for_status()
         except ValueError as ve:
             return HttpResponseServerError(f"Error: {ve}")
         except requests.RequestException as re:

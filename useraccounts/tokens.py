@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-
+from rest_framework import serializers
 
 #from rest_framework_simplejwt.tokens import RefreshToken
 User = get_user_model()
@@ -20,11 +20,16 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         """Class method that retrieves and returns the token for the user."""
         token = super().get_token(user)
         token['name'] = user.username
+        token['oauth_login'] = user.oauth_login
         return token 
 
     def validate(self, attrs):
-        data = super().validate(attrs)
-        
+        if 'oauth_login' in attrs:
+            del attrs['oauth_login']
+        return super().validate(attrs)
+    
+
+
 class MyTokenObtainPairView(TokenObtainPairView):
     """"""
     serializer_class = MyTokenObtainPairSerializer
